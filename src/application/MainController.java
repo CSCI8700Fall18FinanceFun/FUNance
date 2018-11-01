@@ -1,13 +1,25 @@
 package application;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import com.opencsv.CSVReader;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
@@ -18,6 +30,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+
+
+import com.opencsv.CSVReader; 
+import javafx.application.Application;
+import javafx.scene.chart.ScatterChart;
+
+
 
 public class MainController implements Initializable{
 	
@@ -44,7 +64,12 @@ public class MainController implements Initializable{
 	@FXML public ImageView mainIcon;
 	@FXML public ImageView incomeAddIcon;
 	@FXML public ImageView expenseAddIcon;
-	
+	@FXML public CategoryAxis linex;
+	@FXML public NumberAxis	liney;
+	@FXML public LineChart<?,?> lineChart;
+	@FXML public PieChart pieChart;
+	@FXML public BarChart<?,?> barChart;
+		
 	// Image
 	Image inputImage = new Image("/img/input.png");
 	Image logImage = new Image("/img/log.png");
@@ -59,7 +84,7 @@ public class MainController implements Initializable{
 			"Clothing", 
 			"Medical", 
 			"Insurance", 
-			"Persional", 
+			"Personal", 
 			"Education", 
 			"Entertainment");
 	ObservableList<String> incomeList = FXCollections.observableArrayList("Bi-week", 
@@ -69,6 +94,7 @@ public class MainController implements Initializable{
 	ObservableList<expenseInput> expenseTableViewList = FXCollections.observableArrayList();
 	ObservableList<incomeInput> incomeTableViewList = FXCollections.observableArrayList();
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		inputIcon.setImage(inputImage);
@@ -90,9 +116,72 @@ public class MainController implements Initializable{
 		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableSourceCol"));
 		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableFrequencyCol"));
 		incomeInputTable.setItems(incomeTableViewList);
-
-
 		
+		// Pie Chart
+		ObservableList<PieChart.Data> pieChartData =
+	            FXCollections.observableArrayList(
+	            new PieChart.Data("Housing", 25),
+	            new PieChart.Data("Food", 20),
+	            new PieChart.Data("Personal", 15),
+	            new PieChart.Data("Utilities", 10),
+	            new PieChart.Data("Entertainment", 15),
+	            new PieChart.Data("Insurance", 10),
+	            new PieChart.Data("Transportation", 5));
+
+		pieChart.setData(pieChartData);
+
+		// Line Chart
+		XYChart.Series seriesB = new XYChart.Series();
+	   
+		seriesB.setName("Balance Total");	
+
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000-1000));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000-1000+2500-2500));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2000-1000+2500-2500+2000-700));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2000-1000+2500-2500+2000-700+3000-5050));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("May 2018", 2000-1000+2500-2500+2000-700+3000-5050+2500-800));
+
+		lineChart.getData().addAll(seriesB);
+
+//		try {
+//			CSVReader dataReader = new CSVReader(new FileReader("C:/Users/casey/Documents/income.csv"));
+//			String[] nextLine;
+//			while ((nextLine = dataReader.readNext()) != null) {
+//				int amount = Integer.parseInt(nextLine[0]);
+//				String source = String.valueOf(nextLine[1]);
+//				String frequency = String.valueOf(nextLine[2]);
+//			}
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (NumberFormatException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}	
+		
+		// Bar Chart
+		XYChart.Series seriesE = new XYChart.Series();
+		XYChart.Series seriesI = new XYChart.Series();
+		
+		seriesE.setName("Expense Total");
+		seriesI.setName("Income Total");
+		
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 1000));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2500));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 700));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 5050));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("May 2018", 800));
+		
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2500));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2500));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("May 2018", 2500));
+		
+		barChart.getData().addAll(seriesE,seriesI);
 	}
 	
 	
@@ -147,7 +236,5 @@ public class MainController implements Initializable{
 		} else if (event.getSource() == btn_log) {
 			pn_log.toFront();
 		}
-	}
-	
-	
+	}	
 }
