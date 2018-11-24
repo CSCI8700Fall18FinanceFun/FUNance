@@ -17,12 +17,20 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.opencsv.CSVReader;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -39,20 +47,28 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+
+
+import com.opencsv.CSVReader;
+import javafx.application.Application;
+import javafx.scene.chart.ScatterChart;
+
+
 
 public class MainController implements Initializable{
-	
+
 	@FXML private ScrollPane scrpn_main;
 	@FXML private Pane pn_main, pn_input, pn_log;
 	@FXML private Button btn_main, btn_input, btn_log;
-	
+
 	//////////Main Page //////////
-	
+
 	@FXML LineChart<String, Number> linechart;
-	
-	
+
+
 	//////////Main Page //////////
-	
+
 	////////// Input Page //////////
 	// Input page
 	@FXML public ComboBox<String> expenseCombobox;
@@ -73,8 +89,14 @@ public class MainController implements Initializable{
 	@FXML public ImageView mainIcon;
 	@FXML public ImageView incomeAddIcon;
 	@FXML public ImageView expenseAddIcon;
+	@FXML public CategoryAxis linex;
+	@FXML public NumberAxis	liney;
+	@FXML public LineChart<?,?> lineChart;
+	@FXML public PieChart pieChart;
+	@FXML public BarChart<?,?> barChart;
+
 	//////////Input Page //////////
-	
+
 	//////////Log Page //////////
 	// Tables in Log page
 	@FXML public TableView<expenseLog> expenseLogTable;
@@ -91,40 +113,40 @@ public class MainController implements Initializable{
 	Image logImage = new Image("/img/log.png");
 	Image mainImage = new Image("/img/main.png");
 	Image addImage = new Image("/img/add.png");
-	
-	
-	
-	//income file 
+
+
+
+	//income file
 	private String inFile = "income.csv";
 	private String expFile = "expence.csv";
-	
+
 	// date picker
 	@FXML public DatePicker expenseDatePicker = new DatePicker();
-	
-	
-	
+
+
+
 	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
-	ObservableList<String> expenseList = FXCollections.observableArrayList("Housing", 
-			"Transportation", 
-			"Food", 
-			"Utilities", 
-			"Clothing", 
-			"Medical", 
-			"Insurance", 
-			"Persional", 
-			"Education", 
+	ObservableList<String> expenseList = FXCollections.observableArrayList("Housing",
+			"Transportation",
+			"Food",
+			"Utilities",
+			"Clothing",
+			"Medical",
+			"Insurance",
+			"Personal",
+			"Education",
 			"Entertainment");
-	ObservableList<String> incomeList = FXCollections.observableArrayList("Bi-week", 
-																			"Hourly", 
+	ObservableList<String> incomeList = FXCollections.observableArrayList("Bi-week",
+																			"Hourly",
 																			"Monthly");
-	
+
 	ObservableList<expenseInput> expenseTableViewList = FXCollections.observableArrayList();
 	ObservableList<incomeInput> incomeTableViewList = FXCollections.observableArrayList();
 
 	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
 	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
 
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		inputIcon.setImage(inputImage);
@@ -132,37 +154,103 @@ public class MainController implements Initializable{
 		mainIcon.setImage(mainImage);
 		incomeAddIcon.setImage(addImage);
 		expenseAddIcon.setImage(addImage);
-		
+
 		expenseCombobox.setItems(expenseList);
 		incopmeCombobox.setItems(incomeList);
 //		expenseListView.setItems(initListViewTitle);
-		
+
 		expenseTableAmountCol.setCellValueFactory(new PropertyValueFactory<expenseInput, Integer>("expenseTableAmountCol"));
 		expenseTableDateCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableDateCol"));
 		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableCategoriesCol"));
 		expenseInputTable.setItems(expenseTableViewList);
-		
+
 		expenseLogTableAmountCol.setCellValueFactory(new PropertyValueFactory<expenseLog, Integer>("expenseLogTableAmountCol"));
 		expenseLogTableDateCol.setCellValueFactory(new PropertyValueFactory<expenseLog, String>("expenseLogTableDateCol"));
 		expenseLogTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<expenseLog, String>("expenseLogTableCategoriesCol"));
 		expenseLogTable.setItems(expenseLogTableViewList);
-		
+
 		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<incomeInput, Integer>("incomeTableAmountCol"));
 		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableSourceCol"));
 		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableFrequencyCol"));
 		incomeInputTable.setItems(incomeTableViewList);
-		
+
+		// Pie Chart
+		ObservableList<PieChart.Data> pieChartData =
+	            FXCollections.observableArrayList(
+	            new PieChart.Data("Housing", 25),
+	            new PieChart.Data("Food", 20),
+	            new PieChart.Data("Personal", 15),
+	            new PieChart.Data("Utilities", 10),
+	            new PieChart.Data("Entertainment", 15),
+	            new PieChart.Data("Insurance", 10),
+	            new PieChart.Data("Transportation", 5));
+
+		pieChart.setData(pieChartData);
+
+		// Line Chart
+		XYChart.Series seriesB = new XYChart.Series();
+
+		seriesB.setName("Balance Total");
+
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000-1000));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000-1000+2500-2500));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2000-1000+2500-2500+2000-700));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2000-1000+2500-2500+2000-700+3000-5050));
+		seriesB.getData().add(new XYChart.Data<String, Integer>("May 2018", 2000-1000+2500-2500+2000-700+3000-5050+2500-800));
+
+		lineChart.getData().addAll(seriesB);
+
+//		try {
+//			CSVReader dataReader = new CSVReader(new FileReader("C:/Users/casey/Documents/income.csv"));
+//			String[] nextLine;
+//			while ((nextLine = dataReader.readNext()) != null) {
+//				int amount = Integer.parseInt(nextLine[0]);
+//				String source = String.valueOf(nextLine[1]);
+//				String frequency = String.valueOf(nextLine[2]);
+//			}
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (NumberFormatException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		// Bar Chart
+		XYChart.Series seriesE = new XYChart.Series();
+		XYChart.Series seriesI = new XYChart.Series();
+
+		seriesE.setName("Expense Total");
+		seriesI.setName("Income Total");
+
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 1000));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2500));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 700));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 5050));
+		seriesE.getData().add(new XYChart.Data<String, Integer>("May 2018", 800));
+
 		incomeLogTableAmountCol.setCellValueFactory(new PropertyValueFactory<incomeLog, Integer>("incomeLogTableAmountCol"));
 		incomeLogTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeLog, String>("incomeLogTableSourceCol"));
 		incomeLogTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeLog, String>("incomeLogTableFrequencyCol"));
 		incomeLogTable.setItems(incomeLogTableViewList);
 
-		
+
 		writetoFile(inFile, "amount, source, frequency\n", false);
 		writetoFile(expFile, "amount, date, category\n", false);
-		
+
+
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2500));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2500));
+		seriesI.getData().add(new XYChart.Data<String, Integer>("May 2018", 2500));
+
+		barChart.getData().addAll(seriesE,seriesI);
 	}
-	
+
 	public void writetoFile(String fname, String s, boolean append)
 	{
 	  try
@@ -173,11 +261,11 @@ public class MainController implements Initializable{
 	  }
 	  catch (IOException ioe)
 	  {
-	   
+
 	  }
 	 }
-	
-	
+
+
 	@FXML
 	public void expenseAddBtn(ActionEvent event) throws Exception {
 		addToList("addExpense");
@@ -186,33 +274,33 @@ public class MainController implements Initializable{
 //		expenseDate.setText("");
 		expenseCombobox.setValue("Select Category");
 	}
-	
+
 	@FXML
 	public void incomeAddBtn(ActionEvent event) throws Exception {
 		addToList("addIncome");
 		incomeAmount.setText("");
 		incomeSource.setText("");
 		incopmeCombobox.setValue("Select Frequency");
-		
+
 	}
 
-	
-	
-	
+
+
+
 	public void addToList(String addCommand) throws Exception {
 		if (addCommand.equals("addIncome")) {
 			String incomeAmountInput = incomeAmount.getText();
 			String incomeSourceInput = incomeSource.getText();
-			String incomeFrequencyInput = incopmeCombobox.getValue(); 
-			
-			if (incomeAmountInput == null || incomeAmountInput == "" 
+			String incomeFrequencyInput = incopmeCombobox.getValue();
+
+			if (incomeAmountInput == null || incomeAmountInput == ""
 					|| incomeSourceInput == null || incomeSourceInput == ""
 					|| incomeFrequencyInput == null || incomeFrequencyInput == "") {
 				alertHelper();
 				return;
 			} else {
 				incomeTableViewList.add(new incomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
-				
+
 				String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
 				writetoFile(inFile, s, true);
 			}
@@ -220,8 +308,8 @@ public class MainController implements Initializable{
 			String expenseAmountInput = expenseAmount.getText();
 			String expenseDateInput = "";
 			String expenseCategoryInput = expenseCombobox.getValue();
-			
-			if (expenseAmount.getText() == null || expenseAmount.getText().equals("") 
+
+			if (expenseAmount.getText() == null || expenseAmount.getText().equals("")
 					|| expenseDatePicker.getValue() == null
 					|| expenseCombobox.getValue() == null || expenseCombobox.getValue().equals("")) {
 				alertHelper();
@@ -229,14 +317,14 @@ public class MainController implements Initializable{
 			} else {
 				expenseDateInput = expenseDatePicker.getValue().toString();
 				expenseTableViewList.add(new expenseInput(Integer.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput));
-				
+
 				String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
 				writetoFile(expFile, s, true);
 			}
 		}
-		
+
 	}
-	
+
 	private void alertHelper() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Information Dialog");
@@ -245,7 +333,7 @@ public class MainController implements Initializable{
 
 		alert.showAndWait();
 	}
-	
+
 	@FXML
 	private void handleButtonAction(ActionEvent event) {
 		if (event.getSource() == btn_main) {
@@ -267,42 +355,42 @@ public class MainController implements Initializable{
 			pn_log.toFront();
 		}
 	}
-	
+
 	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
 		for (int i = 1; i < dataInput.size(); i++) {
 			String[] eachLine = dataInput.get(i).split(",");
 			int incomeAmountLog = 0;
 			String incomeSourceLog = "";
 			String incomeFrequencyLog = "";
-			
+
 			incomeAmountLog = Integer.parseInt(eachLine[0]);
 			incomeSourceLog = eachLine[1];
 			incomeFrequencyLog= eachLine[2];
-			
-			
+
+
 			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
 		}
 	}
-	
+
 	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
 		for (int i = 1; i < dataInput.size(); i++) {
 			String[] eachLine = dataInput.get(i).split(",");
 			int expenseAmountLog = 0;
 			String expenseDateLog = "";
 			String expenseCategoriesLog = "";
-			
+
 			expenseAmountLog = Integer.parseInt(eachLine[0]);
 			expenseDateLog = eachLine[1];
 			expenseCategoriesLog= eachLine[2];
-			
-			
+
+
 			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
 		}
 	}
-	
+
 	public ArrayList<String> readFile(String fileStrInput)  {
 		ArrayList<String> res = new ArrayList<>();
-		
+
 	    FileInputStream fstream = null;
 	    try {
 	        File inFile = new File(fileStrInput);
@@ -313,11 +401,11 @@ public class MainController implements Initializable{
 	        // Do something with the stream
 	        String curLine = br.readLine();
 	        while (curLine != null && curLine != "") {
-//		        System.out.println(curLine); 
+//		        System.out.println(curLine);
 	        	res.add(curLine);
 		        curLine = br.readLine();
 	        }
-	        
+
 	    } catch (FileNotFoundException ex) {
 	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
 	    } catch (IOException e) {
@@ -326,16 +414,16 @@ public class MainController implements Initializable{
 		} finally {
 	        try {
 	            // If you don't need the stream open after the constructor
-	            // else, remove that block but don't forget to close the 
+	            // else, remove that block but don't forget to close the
 	            // stream after you are done with it
 	            fstream.close();
 	        } catch (IOException ex) {
 	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
 	        }
-	    } 
-	    
+	    }
+
 	    return res;
-	} 
-	
-	
+	}
+
+
 }
