@@ -1,9 +1,14 @@
 package application;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,7 +19,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -80,8 +84,12 @@ public class MainController implements Initializable{
 	//income file 
 	 private String inFile = "income.csv";
 	 private String expFile = "expence.csv";
+	 
+	 private ArrayList<IncomeEntry> incomeEntries;
+	 private ArrayList<ExpenseEntry> expenseEntries;
+		
 	
-	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
+//	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
 	ObservableList<String> expenseList = FXCollections.observableArrayList("Housing", 
 			"Transportation", 
 			"Food", 
@@ -98,6 +106,7 @@ public class MainController implements Initializable{
 	
 	ObservableList<expenseInput> expenseTableViewList = FXCollections.observableArrayList();
 	ObservableList<incomeInput> incomeTableViewList = FXCollections.observableArrayList();
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -120,60 +129,50 @@ public class MainController implements Initializable{
 		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableSourceCol"));
 		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableFrequencyCol"));
 		incomeInputTable.setItems(incomeTableViewList);
+		
+		incomeEntries = FileProcess.readIncomeFromFile(inFile);	
+		expenseEntries = FileProcess.readExpenseFromFile(expFile);
 
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateLineChart()
+	{
 		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
-		series.getData().add(new XYChart.Data<String, Number>("1", 3130));
-		series.getData().add(new XYChart.Data<String, Number>("2", 2360));
-		series.getData().add(new XYChart.Data<String, Number>("3", 3252));
-		series.getData().add(new XYChart.Data<String, Number>("4", 7478));
-		series.getData().add(new XYChart.Data<String, Number>("5", 5478));
-		series.getData().add(new XYChart.Data<String, Number>("6", 6478));
-		series.getData().add(new XYChart.Data<String, Number>("7", 2378));
-		series.getData().add(new XYChart.Data<String, Number>("8", 4635));
-		series.getData().add(new XYChart.Data<String, Number>("9", 7478));
-		series.getData().add(new XYChart.Data<String, Number>("10", 5778));
-		series.getData().add(new XYChart.Data<String, Number>("11", 4778));
-		series.getData().add(new XYChart.Data<String, Number>("12", 6378));
+		Iterator<IncomeEntry> inItr = incomeEntries.iterator();
+
+		int count = 0;
+		while(inItr.hasNext())
+		{
+			IncomeEntry income = inItr.next();
+			String sCount = String.format("%d", count);
+			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
+			count++;
+		}
+//		series.getData().add(new XYChart.Data<String, Number>("1", 1234.1));
 		series.setName("Monthly Income"); // here is to set legend
 		
 		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
-		series1.getData().add(new XYChart.Data<String, Number>("1", 1330));
-		series1.getData().add(new XYChart.Data<String, Number>("2", 1260));
-		series1.getData().add(new XYChart.Data<String, Number>("3", 1352));
-		series1.getData().add(new XYChart.Data<String, Number>("4", 1478));
-		series1.getData().add(new XYChart.Data<String, Number>("5", 1578));
-		series1.getData().add(new XYChart.Data<String, Number>("6", 1478));
-		series1.getData().add(new XYChart.Data<String, Number>("7", 1278));
-		series1.getData().add(new XYChart.Data<String, Number>("8", 1435));
-		series1.getData().add(new XYChart.Data<String, Number>("9", 1748));
-		series1.getData().add(new XYChart.Data<String, Number>("10", 1578));
-		series1.getData().add(new XYChart.Data<String, Number>("11", 1478));
-		series1.getData().add(new XYChart.Data<String, Number>("12", 1678));
+		Iterator<ExpenseEntry> expItr = expenseEntries.iterator();
+		
+		count = 0;
+		while(expItr.hasNext())
+		{
+			ExpenseEntry expense = expItr.next();
+			String sCount = String.format("%d", count);
+			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
+			count++;
+		}
+//		series1.getData().add(new XYChart.Data<String, Number>("1",234));
 		series1.setName("Monthly Expense"); // here is to set legend
 		
 		linechart.getData().addAll(series, series1);
 		for (final XYChart.Data<String, Number> data : series.getData()) {
 			Tooltip.install(data.getNode(), new Tooltip("X: " + data.getXValue() + " Y: " + String.valueOf(data.getYValue())));
 		}
-		
-		writetoFile(inFile, "amount, source, frequency\n", false);
-		writetoFile(expFile, "amount, date, category\n", false);
-
 	}
 	
-	public void writetoFile(String fname, String s, boolean append)
-	{
-	  try
-	  {
-	   FileWriter fw = new FileWriter(fname, append);
-	   fw.append(s);
-	   fw.close();
-	  }
-	  catch (IOException ioe)
-	  {
-	   
-	  }
-	 }
+
 	
 	
 	@FXML
@@ -201,7 +200,7 @@ public class MainController implements Initializable{
 			incomeTableViewList.add(new incomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
 			
 			String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
-			   writetoFile(inFile, s, true);
+			   FileProcess.writetoFile(inFile, s, true);
 			   
 		} else if (addCommand.equals("addExpense")) {
 			String expenseAmountInput = expenseAmount.getText();
@@ -210,7 +209,7 @@ public class MainController implements Initializable{
 			expenseTableViewList.add(new expenseInput(Integer.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput));
 			
 			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
-			   writetoFile(expFile, s, true);
+			   FileProcess.writetoFile(expFile, s, true);
 
 		}
 		
@@ -229,6 +228,7 @@ public class MainController implements Initializable{
 	private void handleButtonAction(ActionEvent event) {
 		if (event.getSource() == btn_main) {
 			scrpn_main.toFront();
+			updateLineChart();
 		} else if (event.getSource() == btn_input) {
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
