@@ -1,25 +1,25 @@
 package application;
 
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+//import java.io.BufferedReader;
+//import java.io.DataInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileReader;
+//import java.io.FileWriter;
+//import java.io.IOException;
+//import java.io.InputStreamReader;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Locale;
+//import java.time.format.DateTimeFormatter;
+//import java.util.ArrayList;
+//import java.util.Locale;
 
 import java.util.Iterator;
 
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,7 +33,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
+//import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -85,13 +85,7 @@ public class MainController implements Initializable{
 	// Tables in Log page
 
 	@FXML public TableView<ExpenseEntry> expenseLogTable;
-//	@FXML public TableColumn<ExpenseInput, Double> expenseLogTableAmountCol;
-//	@FXML public TableColumn<ExpenseInput, String> expenseLogTableDateCol;
-//	@FXML public TableColumn<ExpenseInput, String> expenseLogTableCategoriesCol;
 	@FXML public TableView<IncomeEntry> incomeLogTable;
-//	@FXML public TableColumn<IncomeInput, Double> incomeLogTableAmountCol;
-//	@FXML public TableColumn<IncomeInput, String> incomeLogTableSourceCol;
-//	@FXML public TableColumn<IncomeInput, String> incomeLogTableFrequencyCol;
 
 	//////////Log Page //////////
 	// Image
@@ -133,8 +127,8 @@ public class MainController implements Initializable{
 	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
 	
 
-	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
-	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
+//	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
+//	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
 
 	
 	@Override
@@ -222,7 +216,6 @@ public class MainController implements Initializable{
 			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
 			count++;
 		}
-//		series.getData().add(new XYChart.Data<String, Number>("1", 1234.1));
 		series.setName("Monthly Income"); // here is to set legend
 		
 		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
@@ -236,9 +229,9 @@ public class MainController implements Initializable{
 			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
 			count++;
 		}
-//		series1.getData().add(new XYChart.Data<String, Number>("1",234));
 		series1.setName("Monthly Expense"); // here is to set legend
 		
+		linechart.getData().clear();
 		linechart.getData().addAll(series, series1);
 		for (final XYChart.Data<String, Number> data : series.getData()) {
 			Tooltip.install(data.getNode(), new Tooltip("X: " + data.getXValue() + " Y: " + String.valueOf(data.getYValue())));
@@ -282,15 +275,13 @@ public class MainController implements Initializable{
 				alertHelper();
 				return;
 			} else {
-        incomeDateInput = incomeDatePicker.getValue().toString();
-			//incomeTableList.add(new IncomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
 			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput );
 			incomeList.add(newIncome);
 			incomeInputTable.getItems().add(newIncome);
 			
 			String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
-			   FileProcess.writetoFile(inFile, s, true);  
-      }
+		    FileProcess.writetoFile(inFile, s, true);  
+			}
 
 		} else if (addCommand.equals("addExpense")) {
 			String expenseAmountInput = expenseAmount.getText();
@@ -311,8 +302,8 @@ public class MainController implements Initializable{
 			expenseInputTable.getItems().add(newExpense);
 			
 			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
-			   FileProcess.writetoFile(expFile, s, true);
-      }
+		    FileProcess.writetoFile(expFile, s, true);
+			}
 
 		}
 		
@@ -338,88 +329,88 @@ public class MainController implements Initializable{
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
 			// read and display the file here
-			try {
-				incomeLogTableViewList.clear();
-				expenseLogTableViewList.clear();
-				addToLogInList(readFile(inFile));
-				addToLogExpList(readFile(expFile));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+////				incomeLogTableViewList.clear();
+//				expenseLogTableViewList.clear();
+//				addToLogInList(readFile(inFile));
+//				addToLogExpList(readFile(expFile));
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 //			readFile(expFile);
 			pn_log.toFront();
 		}
 	}
 	
-	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
-		for (int i = 1; i < dataInput.size(); i++) {
-			String[] eachLine = dataInput.get(i).split(",");
-			int incomeAmountLog = 0;
-			String incomeSourceLog = "";
-			String incomeFrequencyLog = "";
-			
-			incomeAmountLog = Integer.parseInt(eachLine[0]);
-			incomeSourceLog = eachLine[1];
-			incomeFrequencyLog= eachLine[2];
-			
-			
-			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
-		}
-	}
+//	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
+//		for (int i = 1; i < dataInput.size(); i++) {
+//			String[] eachLine = dataInput.get(i).split(",");
+//			int incomeAmountLog = 0;
+//			String incomeSourceLog = "";
+//			String incomeFrequencyLog = "";
+//			
+//			incomeAmountLog = Integer.parseInt(eachLine[0]);
+//			incomeSourceLog = eachLine[1];
+//			incomeFrequencyLog= eachLine[2];
+//			
+//			
+//			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
+//		}
+//	}
+//	
+//	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
+//		for (int i = 1; i < dataInput.size(); i++) {
+//			String[] eachLine = dataInput.get(i).split(",");
+//			int expenseAmountLog = 0;
+//			String expenseDateLog = "";
+//			String expenseCategoriesLog = "";
+//			
+//			expenseAmountLog = Integer.parseInt(eachLine[0]);
+//			expenseDateLog = eachLine[1];
+//			expenseCategoriesLog= eachLine[2];
+//			
+//			
+//			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
+//		}
+//	}
 	
-	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
-		for (int i = 1; i < dataInput.size(); i++) {
-			String[] eachLine = dataInput.get(i).split(",");
-			int expenseAmountLog = 0;
-			String expenseDateLog = "";
-			String expenseCategoriesLog = "";
-			
-			expenseAmountLog = Integer.parseInt(eachLine[0]);
-			expenseDateLog = eachLine[1];
-			expenseCategoriesLog= eachLine[2];
-			
-			
-			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
-		}
-	}
-	
-	public ArrayList<String> readFile(String fileStrInput)  {
-		ArrayList<String> res = new ArrayList<>();
-		
-	    FileInputStream fstream = null;
-	    try {
-	        File inFile = new File(fileStrInput);
-	        fstream = new FileInputStream(inFile);
-	        // Get the object of DataInputStream
-	        DataInputStream in = new DataInputStream(fstream);
-	        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-	        // Do something with the stream
-	        String curLine = br.readLine();
-	        while (curLine != null && curLine != "") {
-//		        System.out.println(curLine); 
-	        	res.add(curLine);
-		        curLine = br.readLine();
-	        }
-	        
-	    } catch (FileNotFoundException ex) {
-	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-	    } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-	        try {
-	            // If you don't need the stream open after the constructor
-	            // else, remove that block but don't forget to close the 
-	            // stream after you are done with it
-	            fstream.close();
-	        } catch (IOException ex) {
-	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-	        }
-	    } 
-	    
-	    return res;
-	} 
+//	public ArrayList<String> readFile(String fileStrInput)  {
+//		ArrayList<String> res = new ArrayList<>();
+//		
+//	    FileInputStream fstream = null;
+//	    try {
+//	        File inFile = new File(fileStrInput);
+//	        fstream = new FileInputStream(inFile);
+//	        // Get the object of DataInputStream
+//	        DataInputStream in = new DataInputStream(fstream);
+//	        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//	        // Do something with the stream
+//	        String curLine = br.readLine();
+//	        while (curLine != null && curLine != "") {
+////		        System.out.println(curLine); 
+//	        	res.add(curLine);
+//		        curLine = br.readLine();
+//	        }
+//	        
+//	    } catch (FileNotFoundException ex) {
+//	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+//	    } catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} finally {
+//	        try {
+//	            // If you don't need the stream open after the constructor
+//	            // else, remove that block but don't forget to close the 
+//	            // stream after you are done with it
+//	            fstream.close();
+//	        } catch (IOException ex) {
+//	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+//	        }
+//	    } 
+//	    
+//	    return res;
+//	} 
 	
 	
 }

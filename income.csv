@@ -10,4 +10,5 @@ amount, source, frequency
 7478.0,9,Monthly
 5778.0,10,Monthly
 4778.0,11,Monthly
-6378.0,12,Monthly
+6378.0,12,Monthly120,sth,Bi-week
+100,name1,Bi-week
