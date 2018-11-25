@@ -45,14 +45,14 @@ public class MainController implements Initializable{
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
 	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource;
-	@FXML public TableView<expenseInput> expenseInputTable;
-	@FXML public TableColumn<expenseInput, Integer> expenseTableAmountCol;
-	@FXML public TableColumn<expenseInput, String> expenseTableDateCol;
-	@FXML public TableColumn<expenseInput, String> expenseTableCategoriesCol;
-	@FXML public TableView<incomeInput> incomeInputTable;
-	@FXML public TableColumn<incomeInput, Integer> incomeTableAmountCol;
-	@FXML public TableColumn<incomeInput, String> incomeTableSourceCol;
-	@FXML public TableColumn<incomeInput, String> incomeTableFrequencyCol;
+	@FXML public TableView<ExpenseEntry> expenseInputTable;
+	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
+	@FXML public TableColumn<ExpenseEntry, String> expenseTableDateCol;
+	@FXML public TableColumn<ExpenseEntry, String> expenseTableCategoriesCol;
+	@FXML public TableView<IncomeEntry> incomeInputTable;
+	@FXML public TableColumn<IncomeEntry, Double> incomeTableAmountCol;
+	@FXML public TableColumn<IncomeEntry, String> incomeTableSourceCol;
+	@FXML public TableColumn<IncomeEntry, String> incomeTableFrequencyCol;
 	@FXML public ImageView inputIcon;
 	@FXML public ImageView logIcon;
 	@FXML public ImageView mainIcon;
@@ -62,14 +62,14 @@ public class MainController implements Initializable{
 	
 	//////////Log Page //////////
 	// Tables in Log page
-	@FXML public TableView<expenseInput> expenseLogTable;
-	@FXML public TableColumn<expenseInput, Integer> expenseLogTableAmountCol;
-	@FXML public TableColumn<expenseInput, String> expenseLogTableDateCol;
-	@FXML public TableColumn<expenseInput, String> expenseLogTableCategoriesCol;
-	@FXML public TableView<incomeInput> incomeLogTable;
-	@FXML public TableColumn<incomeInput, Integer> incomeLogTableAmountCol;
-	@FXML public TableColumn<incomeInput, String> incomeLogTableSourceCol;
-	@FXML public TableColumn<incomeInput, String> incomeLogTableFrequencyCol;
+	@FXML public TableView<ExpenseEntry> expenseLogTable;
+//	@FXML public TableColumn<ExpenseInput, Double> expenseLogTableAmountCol;
+//	@FXML public TableColumn<ExpenseInput, String> expenseLogTableDateCol;
+//	@FXML public TableColumn<ExpenseInput, String> expenseLogTableCategoriesCol;
+	@FXML public TableView<IncomeEntry> incomeLogTable;
+//	@FXML public TableColumn<IncomeInput, Double> incomeLogTableAmountCol;
+//	@FXML public TableColumn<IncomeInput, String> incomeLogTableSourceCol;
+//	@FXML public TableColumn<IncomeInput, String> incomeLogTableFrequencyCol;
 	//////////Log Page //////////
 	// Image
 	Image inputImage = new Image("/img/input.png");
@@ -81,12 +81,12 @@ public class MainController implements Initializable{
 	 private String inFile = "income.csv";
 	 private String expFile = "expence.csv";
 	 
-	 private ArrayList<IncomeEntry> incomeEntries;
-	 private ArrayList<ExpenseEntry> expenseEntries;
+//	 private ArrayList<IncomeEntry> incomeEntries;
+//	 private ArrayList<ExpenseEntry> expenseEntries;
 		
 	
 //	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
-	ObservableList<String> expenseList = FXCollections.observableArrayList("Housing", 
+	ObservableList<String> expenseCtg = FXCollections.observableArrayList("Housing", 
 			"Transportation", 
 			"Food", 
 			"Utilities", 
@@ -96,12 +96,15 @@ public class MainController implements Initializable{
 			"Persional", 
 			"Education", 
 			"Entertainment");
-	ObservableList<String> incomeList = FXCollections.observableArrayList("Bi-week", 
+	ObservableList<String> incomeFreq = FXCollections.observableArrayList("Bi-week", 
 																			"Hourly", 
 																			"Monthly");
 	
-	ObservableList<expenseInput> expenseTableViewList = FXCollections.observableArrayList();
-	ObservableList<incomeInput> incomeTableViewList = FXCollections.observableArrayList();
+//	ObservableList<ExpenseInput> expenseTableViewList = FXCollections.observableArrayList();
+//	ObservableList<IncomeInput> incomeTableViewList = FXCollections.observableArrayList();
+	
+	ObservableList<ExpenseEntry> expenseList = FXCollections.observableArrayList();
+	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
 	
 
 	@Override
@@ -112,30 +115,73 @@ public class MainController implements Initializable{
 		incomeAddIcon.setImage(addImage);
 		expenseAddIcon.setImage(addImage);
 		
-		expenseCombobox.setItems(expenseList);
-		incopmeCombobox.setItems(incomeList);
+		expenseCombobox.setItems(expenseCtg);
+		incopmeCombobox.setItems(incomeFreq);
 //		expenseListView.setItems(initListViewTitle);
 		
-		expenseTableAmountCol.setCellValueFactory(new PropertyValueFactory<expenseInput, Integer>("expenseTableAmountCol"));
-		expenseTableDateCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableDateCol"));
-		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableCategoriesCol"));
-		expenseInputTable.setItems(expenseTableViewList);
+		expenseTableAmountCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, Double>("Amount"));
+		expenseTableDateCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, String>("Date"));
+		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, String>("Category"));
+//		expenseInputTable.setItems(expenseTableViewList);
 		
-		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<incomeInput, Integer>("incomeTableAmountCol"));
-		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableSourceCol"));
-		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableFrequencyCol"));
-		incomeInputTable.setItems(incomeTableViewList);
+		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, Double>("Amount"));
+		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Source"));
+		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Frequency"));
+//		incomeInputTable.setItems(incomeTableViewList);
 		
-		incomeEntries = FileProcess.readIncomeFromFile(inFile);	
-		expenseEntries = FileProcess.readExpenseFromFile(expFile);
-
+		//update log page
+		incomeList = FileProcess.readIncomeFromFile(inFile);	
+		expenseList = FileProcess.readExpenseFromFile(expFile);
+		
+		populateLogTable();
+	}
+	
+	
+	public void populateLogTable()
+	{
+		TableColumn<ExpenseEntry, Double> expAmountColumn = new TableColumn<>("Amount");
+		expAmountColumn.setMinWidth(100);
+		expAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+		
+		TableColumn<ExpenseEntry, Double> expDateColumn = new TableColumn<>("Date");
+		expDateColumn.setMinWidth(100);
+		expDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+		
+		TableColumn<ExpenseEntry, Double> expCatColumn = new TableColumn<>("Category");
+		expCatColumn.setMinWidth(100);
+		expCatColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+		
+		
+		expenseLogTable.setItems(expenseList);
+		expenseLogTable.getColumns().add(expAmountColumn);
+		expenseLogTable.getColumns().add(expDateColumn);
+		expenseLogTable.getColumns().add(expCatColumn);
+		
+		
+		//populate income table
+		TableColumn<IncomeEntry, Double> incomeAmountColumn = new TableColumn<>("Amount");
+		incomeAmountColumn.setMinWidth(100);
+		incomeAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+		
+		TableColumn<IncomeEntry, Double> incomeSourceColumn = new TableColumn<>("Source");
+		incomeSourceColumn.setMinWidth(100);
+		incomeSourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
+		
+		TableColumn<IncomeEntry, Double> incomeFreqColumn = new TableColumn<>("Frequency");
+		incomeFreqColumn.setMinWidth(100);
+		incomeFreqColumn.setCellValueFactory(new PropertyValueFactory<>("frequency"));
+		
+		incomeLogTable.setItems(incomeList);
+		incomeLogTable.getColumns().add(incomeAmountColumn);
+		incomeLogTable.getColumns().add(incomeSourceColumn);
+		incomeLogTable.getColumns().add(incomeFreqColumn);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void updateLineChart()
 	{
 		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
-		Iterator<IncomeEntry> inItr = incomeEntries.iterator();
+		Iterator<IncomeEntry> inItr = incomeList.iterator();
 
 		int count = 0;
 		while(inItr.hasNext())
@@ -149,7 +195,7 @@ public class MainController implements Initializable{
 		series.setName("Monthly Income"); // here is to set legend
 		
 		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
-		Iterator<ExpenseEntry> expItr = expenseEntries.iterator();
+		Iterator<ExpenseEntry> expItr = expenseList.iterator();
 		
 		count = 0;
 		while(expItr.hasNext())
@@ -193,7 +239,9 @@ public class MainController implements Initializable{
 			String incomeAmountInput = incomeAmount.getText();
 			String incomeSourceInput = incomeSource.getText();
 			String incomeFrequencyInput = incopmeCombobox.getValue(); 
-			incomeTableViewList.add(new incomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
+			//incomeTableList.add(new IncomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
+			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, Integer.parseInt(incomeFrequencyInput) );
+			incomeList.add(newIncome);
 			
 			String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
 			   FileProcess.writetoFile(inFile, s, true);
@@ -202,7 +250,8 @@ public class MainController implements Initializable{
 			String expenseAmountInput = expenseAmount.getText();
 			String expenseDateInput = expenseDate.getText();
 			String expenseCategoryInput = expenseCombobox.getValue();
-			expenseTableViewList.add(new expenseInput(Integer.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput));
+			ExpenseEntry newExpense = new ExpenseEntry( Double.valueOf(expenseAmountInput), expenseDateInput, Integer.parseInt(expenseCategoryInput) );
+			expenseList.add(newExpense);
 			
 			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
 			   FileProcess.writetoFile(expFile, s, true);
@@ -210,6 +259,11 @@ public class MainController implements Initializable{
 		}
 		
 	}
+	
+//	public void updateLogTable()
+//	{
+//		
+//	}
 	
 //	public void addToList() throws Exception {
 //		String incomeAmountInput = incomeAmount.getText();

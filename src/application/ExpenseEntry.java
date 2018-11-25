@@ -12,18 +12,25 @@ public class ExpenseEntry {
 			"Education", 
 			"Entertainment"};
 			
-	private double amount;
+	private Double amount;
 	private String date;
-	private int category;
+	private String category;
 	
-	public ExpenseEntry(double inAmount, String inDate, int inCategory)
+	public ExpenseEntry(Double inAmount, String inDate, int inCategory)
 	{
 		setAmount(inAmount);
 		setDate(inDate);
 		setCategory(inCategory);
 	}
 	
-	public void setAmount(double inAmount)
+	public ExpenseEntry(Double inAmount, String inDate, String inCategory)
+	{
+		setAmount(inAmount);
+		setDate(inDate);
+		setCategory(inCategory);
+	}
+	
+	public void setAmount(Double inAmount)
 	{
 		amount = inAmount;
 	}
@@ -42,6 +49,11 @@ public class ExpenseEntry {
 			System.out.printf("invalid category: %d\n", inCategory);
 			return;
 		}
+		category = EXPENSE_CATEGORY[inCategory];
+	}
+	
+	public void setCategory(String inCategory)
+	{
 		category = inCategory;
 	}
 	
@@ -57,7 +69,7 @@ public class ExpenseEntry {
 	
 	public String getCategory()
 	{
-		return EXPENSE_CATEGORY[category];
+		return category;
 	}
 	
 	public static int convertCategory(String ctg)

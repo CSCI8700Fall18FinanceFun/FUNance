@@ -4,13 +4,13 @@ public class IncomeEntry {
 	public static final String[] INCOME_FREQUENCY = {"Bi-week", 
 			"Hourly", 
 			"Monthly"};
-	private double amount;
+	private Double amount;
 	private String source;
-	private int frequency;
+	private String frequency;
 	//todo add in startDate of this income to allow auto-compute accumulated income as time goes along.
 //	private String startDate;
 	
-	public IncomeEntry(double inAmount, String inSource, int inFreq)
+	public IncomeEntry(Double inAmount, String inSource, int inFreq)
 	{
 		
 		setAmount(inAmount);
@@ -18,7 +18,15 @@ public class IncomeEntry {
 		setFrequency(inFreq);
 	}
 	
-	public void setAmount(double inAmount)
+	public IncomeEntry(Double inAmount, String inSource, String inFreq)
+	{
+		
+		setAmount(inAmount);
+		setSource(inSource);
+		setFrequency(inFreq);
+	}
+	
+	public void setAmount(Double inAmount)
 	{
 		amount = inAmount;
 	}
@@ -29,6 +37,18 @@ public class IncomeEntry {
 	}
 	
 	public void setFrequency(int inFreq)
+	{
+		if (inFreq < 0 || inFreq >= INCOME_FREQUENCY.length)
+		{
+			//todo change it to INVALID_EXCEPTION.
+			System.out.printf("invalid category: %d\n", inFreq);
+			return;
+		}
+		
+		frequency = INCOME_FREQUENCY[inFreq];
+	}
+	
+	public void setFrequency(String inFreq)
 	{
 		frequency = inFreq;
 	}
@@ -45,7 +65,7 @@ public class IncomeEntry {
 	
 	public String getFrequency()
 	{
-		return INCOME_FREQUENCY[frequency];
+		return frequency;
 	}
 	
 	public static int convertFrequency(String f)

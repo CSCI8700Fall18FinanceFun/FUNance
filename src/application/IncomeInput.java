@@ -3,12 +3,12 @@ package application;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class incomeInput {
+public class IncomeInput {
 	private SimpleStringProperty source;
 	private SimpleStringProperty frequency;
 	private SimpleIntegerProperty amount;
 	
-	public incomeInput(Integer amount, String source, String Frequency) {
+	public IncomeInput(Integer amount, String source, String Frequency) {
 		super();
 		this.amount = new SimpleIntegerProperty(amount);
 		this.source = new SimpleStringProperty(source);

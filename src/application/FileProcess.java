@@ -4,14 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class FileProcess {
 
-	public static ArrayList<IncomeEntry> readIncomeFromFile(String fname)
+	public static ObservableList<IncomeEntry> readIncomeFromFile(String fname)
 	{
-		ArrayList<IncomeEntry> incomes = new ArrayList<>();
+		ObservableList<IncomeEntry> incomes = FXCollections.observableArrayList();
 		try
 		{
 			Scanner in = new Scanner(new File(fname));
@@ -25,9 +27,10 @@ public class FileProcess {
 					String[] token = line.split(",");
 					if (token.length == 3)
 					{
-						double amount = Double.parseDouble(token[0]);
+						Double amount = Double.parseDouble(token[0]);
 						String source = token[1];
-						int freq = IncomeEntry.convertFrequency(token[2]);
+						String freq = token[2];
+						//int freq = IncomeEntry.convertFrequency(token[2]);
 						incomes.add(new IncomeEntry(amount, source, freq));
 			//				System.out.println(amount + "," + source + "," + IncomeEntry.INCOME_FREQUENCY[freq]);
 					}
@@ -48,9 +51,9 @@ public class FileProcess {
 		return incomes;
 	}
 	
-	public static ArrayList<ExpenseEntry> readExpenseFromFile(String fname)
+	public static ObservableList<ExpenseEntry> readExpenseFromFile(String fname)
 	{
-		ArrayList<ExpenseEntry> expenses = new ArrayList<>();
+		ObservableList<ExpenseEntry> expenses = FXCollections.observableArrayList();
 		try
 		{
 			Scanner in = new Scanner(new File(fname));
@@ -64,9 +67,10 @@ public class FileProcess {
 					String[] token = line.split(",");
 					if (token.length == 3)
 					{
-						double amount = Double.parseDouble(token[0]);
+						Double amount = Double.parseDouble(token[0]);
 						String date = token[1];
-						int ctg = ExpenseEntry.convertCategory(token[2]);
+						String ctg = token[2];
+//						int ctg = ExpenseEntry.convertCategory(token[2]);
 						expenses.add(new ExpenseEntry(amount, date, ctg));
 		//				System.out.println(amount + "," + date + "," + ExpenseEntry.EXPENSE_CATEGORY[ctg]);
 					}
