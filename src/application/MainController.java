@@ -1,10 +1,25 @@
 package application;
 
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Locale;
+
 import java.util.Iterator;
+
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,8 +28,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -44,6 +63,7 @@ public class MainController implements Initializable{
 	@FXML public ComboBox<String> incopmeCombobox;
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
+
 	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource;
 	@FXML public TableView<ExpenseEntry> expenseInputTable;
 	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
@@ -53,6 +73,7 @@ public class MainController implements Initializable{
 	@FXML public TableColumn<IncomeEntry, Double> incomeTableAmountCol;
 	@FXML public TableColumn<IncomeEntry, String> incomeTableSourceCol;
 	@FXML public TableColumn<IncomeEntry, String> incomeTableFrequencyCol;
+
 	@FXML public ImageView inputIcon;
 	@FXML public ImageView logIcon;
 	@FXML public ImageView mainIcon;
@@ -62,6 +83,7 @@ public class MainController implements Initializable{
 	
 	//////////Log Page //////////
 	// Tables in Log page
+
 	@FXML public TableView<ExpenseEntry> expenseLogTable;
 //	@FXML public TableColumn<ExpenseInput, Double> expenseLogTableAmountCol;
 //	@FXML public TableColumn<ExpenseInput, String> expenseLogTableDateCol;
@@ -70,6 +92,7 @@ public class MainController implements Initializable{
 //	@FXML public TableColumn<IncomeInput, Double> incomeLogTableAmountCol;
 //	@FXML public TableColumn<IncomeInput, String> incomeLogTableSourceCol;
 //	@FXML public TableColumn<IncomeInput, String> incomeLogTableFrequencyCol;
+
 	//////////Log Page //////////
 	// Image
 	Image inputImage = new Image("/img/input.png");
@@ -77,13 +100,16 @@ public class MainController implements Initializable{
 	Image mainImage = new Image("/img/main.png");
 	Image addImage = new Image("/img/add.png");
 	
+	
+	
 	//income file 
-	 private String inFile = "income.csv";
-	 private String expFile = "expence.csv";
-	 
-//	 private ArrayList<IncomeEntry> incomeEntries;
-//	 private ArrayList<ExpenseEntry> expenseEntries;
-		
+	private String inFile = "income.csv";
+	private String expFile = "expence.csv";
+	
+	// date picker
+	@FXML public DatePicker expenseDatePicker = new DatePicker();
+	
+
 	
 //	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
 	ObservableList<String> expenseCtg = FXCollections.observableArrayList("Housing", 
@@ -107,6 +133,10 @@ public class MainController implements Initializable{
 	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
 	
 
+	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
+	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
+
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		inputIcon.setImage(inputImage);
@@ -124,6 +154,7 @@ public class MainController implements Initializable{
 		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, String>("Category"));
 //		expenseInputTable.setItems(expenseTableViewList);
 		
+
 		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, Double>("Amount"));
 		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Source"));
 		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Frequency"));
@@ -221,7 +252,8 @@ public class MainController implements Initializable{
 	public void expenseAddBtn(ActionEvent event) throws Exception {
 		addToList("addExpense");
 		expenseAmount.setText("");
-		expenseDate.setText("");
+//		expenseDatePick
+//		expenseDate.setText("");
 		expenseCombobox.setValue("Select Category");
 	}
 	
@@ -233,48 +265,69 @@ public class MainController implements Initializable{
 		incopmeCombobox.setValue("Select Frequency");
 		
 	}
+
+	
+	
 	
 	public void addToList(String addCommand) throws Exception {
 		if (addCommand.equals("addIncome")) {
 			String incomeAmountInput = incomeAmount.getText();
 			String incomeSourceInput = incomeSource.getText();
 			String incomeFrequencyInput = incopmeCombobox.getValue(); 
+
+			
+			if (incomeAmountInput == null || incomeAmountInput == "" 
+					|| incomeSourceInput == null || incomeSourceInput == ""
+					|| incomeFrequencyInput == null || incomeFrequencyInput == "") {
+				alertHelper();
+				return;
+			} else {
+        incomeDateInput = incomeDatePicker.getValue().toString();
 			//incomeTableList.add(new IncomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
 			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput );
 			incomeList.add(newIncome);
 			incomeInputTable.getItems().add(newIncome);
 			
 			String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
-			   FileProcess.writetoFile(inFile, s, true);
-			   
+			   FileProcess.writetoFile(inFile, s, true);  
+      }
+
 		} else if (addCommand.equals("addExpense")) {
 			String expenseAmountInput = expenseAmount.getText();
-			String expenseDateInput = expenseDate.getText();
+			String expenseDateInput = "";
 			String expenseCategoryInput = expenseCombobox.getValue();
+
+			
+			if (expenseAmount.getText() == null || expenseAmount.getText().equals("") 
+					|| expenseDatePicker.getValue() == null
+					|| expenseCombobox.getValue() == null || expenseCombobox.getValue().equals("")) {
+				alertHelper();
+				return;
+			} else {
+				expenseDateInput = expenseDatePicker.getValue().toString();
+			
 			ExpenseEntry newExpense = new ExpenseEntry( Double.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput );
 			expenseList.add(newExpense);
 			expenseInputTable.getItems().add(newExpense);
 			
 			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
 			   FileProcess.writetoFile(expFile, s, true);
+      }
 
 		}
 		
 	}
 	
-//	public void updateLogTable()
-//	{
-//		
-//	}
-	
-//	public void addToList() throws Exception {
-//		String incomeAmountInput = incomeAmount.getText();
-//		String incomeSourceInput = incomeSource.getText();
-//		String incomeFrequencyInput = incopmeCombobox.getValue(); 
-//		
-//		incomeTableViewList.add(new incomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
-//	}
-	
+
+	private void alertHelper() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Information Dialog");
+		alert.setHeaderText(null);
+		alert.setContentText("Wrong Input!");
+
+		alert.showAndWait();
+	}
+
 	
 	@FXML
 	private void handleButtonAction(ActionEvent event) {
@@ -284,9 +337,89 @@ public class MainController implements Initializable{
 		} else if (event.getSource() == btn_input) {
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
+			// read and display the file here
+			try {
+				incomeLogTableViewList.clear();
+				expenseLogTableViewList.clear();
+				addToLogInList(readFile(inFile));
+				addToLogExpList(readFile(expFile));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			readFile(expFile);
 			pn_log.toFront();
 		}
 	}
+	
+	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
+		for (int i = 1; i < dataInput.size(); i++) {
+			String[] eachLine = dataInput.get(i).split(",");
+			int incomeAmountLog = 0;
+			String incomeSourceLog = "";
+			String incomeFrequencyLog = "";
+			
+			incomeAmountLog = Integer.parseInt(eachLine[0]);
+			incomeSourceLog = eachLine[1];
+			incomeFrequencyLog= eachLine[2];
+			
+			
+			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
+		}
+	}
+	
+	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
+		for (int i = 1; i < dataInput.size(); i++) {
+			String[] eachLine = dataInput.get(i).split(",");
+			int expenseAmountLog = 0;
+			String expenseDateLog = "";
+			String expenseCategoriesLog = "";
+			
+			expenseAmountLog = Integer.parseInt(eachLine[0]);
+			expenseDateLog = eachLine[1];
+			expenseCategoriesLog= eachLine[2];
+			
+			
+			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
+		}
+	}
+	
+	public ArrayList<String> readFile(String fileStrInput)  {
+		ArrayList<String> res = new ArrayList<>();
+		
+	    FileInputStream fstream = null;
+	    try {
+	        File inFile = new File(fileStrInput);
+	        fstream = new FileInputStream(inFile);
+	        // Get the object of DataInputStream
+	        DataInputStream in = new DataInputStream(fstream);
+	        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+	        // Do something with the stream
+	        String curLine = br.readLine();
+	        while (curLine != null && curLine != "") {
+//		        System.out.println(curLine); 
+	        	res.add(curLine);
+		        curLine = br.readLine();
+	        }
+	        
+	    } catch (FileNotFoundException ex) {
+	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+	    } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+	        try {
+	            // If you don't need the stream open after the constructor
+	            // else, remove that block but don't forget to close the 
+	            // stream after you are done with it
+	            fstream.close();
+	        } catch (IOException ex) {
+	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+	        }
+	    } 
+	    
+	    return res;
+	} 
 	
 	
 }
