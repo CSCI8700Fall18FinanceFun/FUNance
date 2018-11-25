@@ -100,8 +100,8 @@ public class MainController implements Initializable{
 																			"Hourly", 
 																			"Monthly");
 	
-//	ObservableList<ExpenseInput> expenseTableViewList = FXCollections.observableArrayList();
-//	ObservableList<IncomeInput> incomeTableViewList = FXCollections.observableArrayList();
+//	ObservableList<ExpenseEntry> expenseTableViewList = FXCollections.observableArrayList();
+//	ObservableList<IncomeEntry> incomeTableViewList = FXCollections.observableArrayList();
 	
 	ObservableList<ExpenseEntry> expenseList = FXCollections.observableArrayList();
 	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
@@ -240,8 +240,9 @@ public class MainController implements Initializable{
 			String incomeSourceInput = incomeSource.getText();
 			String incomeFrequencyInput = incopmeCombobox.getValue(); 
 			//incomeTableList.add(new IncomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
-			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, Integer.parseInt(incomeFrequencyInput) );
+			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput );
 			incomeList.add(newIncome);
+			incomeInputTable.getItems().add(newIncome);
 			
 			String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
 			   FileProcess.writetoFile(inFile, s, true);
@@ -250,8 +251,9 @@ public class MainController implements Initializable{
 			String expenseAmountInput = expenseAmount.getText();
 			String expenseDateInput = expenseDate.getText();
 			String expenseCategoryInput = expenseCombobox.getValue();
-			ExpenseEntry newExpense = new ExpenseEntry( Double.valueOf(expenseAmountInput), expenseDateInput, Integer.parseInt(expenseCategoryInput) );
+			ExpenseEntry newExpense = new ExpenseEntry( Double.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput );
 			expenseList.add(newExpense);
+			expenseInputTable.getItems().add(newExpense);
 			
 			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
 			   FileProcess.writetoFile(expFile, s, true);
