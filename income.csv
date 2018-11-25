@@ -1,1 +1,3 @@
-amount, source, frequency
+amount, source, frequency, date
+1,a,Monthly,2018-11-20
+1,ab,Monthly,2018-11-14
