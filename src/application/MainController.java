@@ -25,14 +25,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 //import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
@@ -42,6 +46,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 public class MainController implements Initializable{
@@ -53,7 +58,8 @@ public class MainController implements Initializable{
 	//////////Main Page //////////
 	
 	@FXML LineChart<String, Number> linechart;
-	
+	@FXML PieChart piechart;
+	@FXML Label status;
 	
 	//////////Main Page //////////
 	
@@ -64,7 +70,7 @@ public class MainController implements Initializable{
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
 
-	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField;
+	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField1, searchField2;
 	@FXML public TableView<ExpenseEntry> expenseInputTable;
 	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
 	@FXML public TableColumn<ExpenseEntry, String> expenseTableDateCol;
@@ -106,6 +112,8 @@ public class MainController implements Initializable{
 	// date picker
 	@FXML public DatePicker expenseDatePicker = new DatePicker();
 	@FXML public DatePicker incomeDatePicker = new DatePicker();
+	@FXML public DatePicker datePickLogStart = new DatePicker();
+	@FXML public DatePicker datePickLogEnd = new DatePicker();
 	
 
 	
@@ -164,12 +172,15 @@ public class MainController implements Initializable{
 		incomeList = FileProcess.readIncomeFromFile(inFile);	
 		expenseList = FileProcess.readExpenseFromFile(expFile);
 		
-		populateLogTable();
+		populateLogTable(expenseList, incomeList);
+		updateLineChart();
+		updatePieChart();
 	}
 	
 	
-	public void populateLogTable()
+	public void populateLogTable(ObservableList<ExpenseEntry> expList, ObservableList<IncomeEntry> incList)
 	{
+		expenseLogTable.getColumns().clear();
 		TableColumn<ExpenseEntry, Double> expAmountColumn = new TableColumn<>("Amount");
 		expAmountColumn.setMinWidth(100);
 		expAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -183,13 +194,14 @@ public class MainController implements Initializable{
 		expCatColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
 		
 		
-		expenseLogTable.setItems(expenseList);
+		expenseLogTable.setItems(expList);
 		expenseLogTable.getColumns().add(expAmountColumn);
 		expenseLogTable.getColumns().add(expDateColumn);
 		expenseLogTable.getColumns().add(expCatColumn);
 		
 		
 		//populate income table
+		incomeLogTable.getColumns().clear();
 		TableColumn<IncomeEntry, Double> incomeAmountColumn = new TableColumn<>("Amount");
 		incomeAmountColumn.setMinWidth(40);
 		incomeAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -206,11 +218,35 @@ public class MainController implements Initializable{
 		incomeDateColumn.setMinWidth(40);
 		incomeDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 		
-		incomeLogTable.setItems(incomeList);
+		incomeLogTable.setItems(incList);
 		incomeLogTable.getColumns().add(incomeAmountColumn);
 		incomeLogTable.getColumns().add(incomeSourceColumn);
 		incomeLogTable.getColumns().add(incomeFreqColumn);
 		incomeLogTable.getColumns().add(incomeDateColumn);
+	}
+	
+	public void updatePieChart()
+	{
+		ObservableList<Data> list = FXCollections.observableArrayList();
+		
+		double[] ctgValues = DataProcess.procesExpensePieChart(expenseList, 2018);
+		for (int i=0; i< ctgValues.length; i++)
+		{
+			list.add(new PieChart.Data(ExpenseEntry.EXPENSE_CATEGORY[i], ctgValues[i]));
+		}
+		
+		piechart.setData(list);
+		
+		for (final PieChart.Data data : piechart.getData()) {
+			data.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+
+				@Override
+				public void handle(MouseEvent event) {
+					status.setText(String.valueOf(data.getPieValue() / ((5 + 10 + 22 + 24 + 41) / 100)) + "%");
+				}
+				
+			});
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -260,12 +296,32 @@ public class MainController implements Initializable{
 	}
 	
 	@FXML
-	public void searchBtnAction(ActionEvent event) throws Exception {
-		String searchFieldStr = searchField.getText();
-		System.out.println(searchFieldStr);
-		searchField.clear();
+	public void searchBtnActionChart(ActionEvent event) throws Exception {
+		String startDate = searchField1.getText();
+		String endDate = searchField2.getText();
+		
+		
+		searchField1.clear();
+		searchField2.clear();
 	}
 	
+	
+	@FXML
+	public void searchBtnActionLog(ActionEvent event) throws Exception {
+		if (datePickLogStart.getValue() != null && datePickLogEnd.getValue() != null) {
+			String startDate = datePickLogStart.getValue().toString();
+			String endDate = datePickLogEnd.getValue().toString();
+			
+			ObservableList<ExpenseEntry> filteredExpList = DataProcess.filterExpenseByDateRange(expenseList, startDate, endDate);
+			ObservableList<IncomeEntry> filteredIncList = DataProcess.filterIncomeByDateRange(incomeList, startDate, endDate);
+			
+			populateLogTable(filteredExpList, filteredIncList);
+			
+			System.out.println(startDate);
+			System.out.println(endDate);
+		}
+		
+	}
 	
 	@FXML
 	public void expenseAddBtn(ActionEvent event) throws Exception {
@@ -351,6 +407,7 @@ public class MainController implements Initializable{
 		if (event.getSource() == btn_main) {
 			scrpn_main.toFront();
 			updateLineChart();
+			updatePieChart();
 		} else if (event.getSource() == btn_input) {
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
