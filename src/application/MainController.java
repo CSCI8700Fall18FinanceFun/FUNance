@@ -64,7 +64,7 @@ public class MainController implements Initializable{
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
 
-	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource;
+	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField;
 	@FXML public TableView<ExpenseEntry> expenseInputTable;
 	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
 	@FXML public TableColumn<ExpenseEntry, String> expenseTableDateCol;
@@ -80,6 +80,7 @@ public class MainController implements Initializable{
 	@FXML public ImageView mainIcon;
 	@FXML public ImageView incomeAddIcon;
 	@FXML public ImageView expenseAddIcon;
+	@FXML public ImageView searchIcon;
 	//////////Input Page //////////
 	
 	//////////Log Page //////////
@@ -94,6 +95,7 @@ public class MainController implements Initializable{
 	Image logImage = new Image("/img/log.png");
 	Image mainImage = new Image("/img/main.png");
 	Image addImage = new Image("/img/add.png");
+	Image searchImage = new Image("/img/search.png");
 	
 	
 	
@@ -140,6 +142,7 @@ public class MainController implements Initializable{
 		mainIcon.setImage(mainImage);
 		incomeAddIcon.setImage(addImage);
 		expenseAddIcon.setImage(addImage);
+		searchIcon.setImage(searchImage);
 		
 		expenseCombobox.setItems(expenseCtg);
 		incopmeCombobox.setItems(incomeFreq);
@@ -214,30 +217,40 @@ public class MainController implements Initializable{
 	public void updateLineChart()
 	{
 		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
-		Iterator<IncomeEntry> inItr = incomeList.iterator();
+//		Iterator<IncomeEntry> inItr = incomeList.iterator();
 
-		int count = 0;
-		while(inItr.hasNext())
+//		int count = 0;
+//		while(inItr.hasNext())
+//		{
+//			IncomeEntry income = inItr.next();
+//			String sCount = String.format("%d", count);
+//			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
+//			count++;
+//		}
+		double[] monthlyIncome = DataProcess.procesIncomeByMonth(incomeList, 2018);
+		for (int i=0; i< monthlyIncome.length; i++)
 		{
-			IncomeEntry income = inItr.next();
-			String sCount = String.format("%d", count);
-			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
-			count++;
+			series.getData().add(new XYChart.Data<String, Number>( DataProcess.MONTHES[i], monthlyIncome[i]) );
 		}
-		series.setName("Monthly Income"); // here is to set legend
+		series.setName("2018 Monthly Income"); // here is to set legend
 		
 		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
-		Iterator<ExpenseEntry> expItr = expenseList.iterator();
+//		Iterator<ExpenseEntry> expItr = expenseList.iterator();
 		
-		count = 0;
-		while(expItr.hasNext())
+//		count = 0;
+//		while(expItr.hasNext())
+//		{
+//			ExpenseEntry expense = expItr.next();
+//			String sCount = String.format("%d", count);
+//			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
+//			count++;
+//		}
+		double[] monthlyExpense = DataProcess.procesExpenseByMonth(expenseList, 2018);
+		for (int i=0; i< monthlyExpense.length; i++)
 		{
-			ExpenseEntry expense = expItr.next();
-			String sCount = String.format("%d", count);
-			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
-			count++;
+			series1.getData().add(new XYChart.Data<String, Number>( DataProcess.MONTHES[i], monthlyExpense[i]) );
 		}
-		series1.setName("Monthly Expense"); // here is to set legend
+		series1.setName("2018 Monthly Expense"); // here is to set legend
 		
 		linechart.getData().clear();
 		linechart.getData().addAll(series, series1);
@@ -246,7 +259,12 @@ public class MainController implements Initializable{
 		}
 	}
 	
-
+	@FXML
+	public void searchBtnAction(ActionEvent event) throws Exception {
+		String searchFieldStr = searchField.getText();
+		System.out.println(searchFieldStr);
+		searchField.clear();
+	}
 	
 	
 	@FXML
@@ -264,12 +282,8 @@ public class MainController implements Initializable{
 		incomeAmount.setText("");
 		incomeSource.setText("");
 		incopmeCombobox.setValue("Select Frequency");
-		
 	}
 
-	
-	
-	
 	public void addToList(String addCommand) throws Exception {
 		if (addCommand.equals("addIncome")) {
 			String incomeAmountInput = incomeAmount.getText();
@@ -423,6 +437,11 @@ public class MainController implements Initializable{
 //	    
 //	    return res;
 //	} 
+	/**
+	 * -fx-background-color  transparent
+	 * 
+	 * 
+	 */
 	
 	
 }
