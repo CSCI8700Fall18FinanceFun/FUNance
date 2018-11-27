@@ -103,10 +103,9 @@ public class DataProcess {
 		
 		return outList;
 	}
-	public static double[] procesExpensePieChart(ObservableList<ExpenseEntry> expenseList, int year)
+	public static double[] procesExpenseBarChart(ObservableList<ExpenseEntry> expenseList, int year, int month)
 	 {
 	  Iterator<ExpenseEntry> itr = expenseList.iterator();
-	
 	  double[] categories = new double[ExpenseEntry.EXPENSE_CATEGORY.length];
 	  
 	  //initialize values to zero
@@ -121,13 +120,49 @@ public class DataProcess {
 	   String date = expense.getDate();
 	   String[] tok = date.split("-");
 	   int y = Integer.parseInt(tok[0]);
+	   int m = Integer.parseInt(tok[1]);
+	//   int d = Integer.parseInt(tok[2]);
+	   if (y == year && m == month)
+	   {
+	    int ctg = ExpenseEntry.convertCategory( expense.getCategory() );
+	    categories[ctg] += expense.getAmount();
+	   }
+	  }
+	  
+	  return categories;
+	 }
+	 
+	 public static double[] procesExpensePieChart(ObservableList<ExpenseEntry> expenseList, int year)
+	 {
+	  Iterator<ExpenseEntry> itr = expenseList.iterator();
+	  double[] categories = new double[ExpenseEntry.EXPENSE_CATEGORY.length];
+	  
+	  //initialize values to zero
+	  for (int i = 0; i<categories.length; i++)
+	  {
+	   categories[i] = 0;
+	  }
+	  
+	  double total = 0.0;
+	  while(itr.hasNext())
+	  {
+	   ExpenseEntry expense = itr.next();
+	   String date = expense.getDate();
+	   String[] tok = date.split("-");
+	   int y = Integer.parseInt(tok[0]);
 	//   int m = Integer.parseInt(tok[1]);
 	//   int d = Integer.parseInt(tok[2]);
 	   if (y == year)
 	   {
 	    int ctg = ExpenseEntry.convertCategory( expense.getCategory() );
 	    categories[ctg] += expense.getAmount();
+	    total += expense.getAmount();
 	   }
+	  }
+	  
+	  for (int i=0; i<categories.length; i++)
+	  {
+	   categories[i] = categories[i] / total * 100.0;
 	  }
 	  
 	  return categories;

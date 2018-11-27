@@ -24,13 +24,16 @@ import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.PieChart.Data;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -44,10 +47,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public class MainController implements Initializable{
 	
@@ -58,6 +63,7 @@ public class MainController implements Initializable{
 	//////////Main Page //////////
 	
 	@FXML LineChart<String, Number> linechart;
+	@FXML BarChart<String, Number> barchart;
 	@FXML PieChart piechart;
 	@FXML Label status;
 	
@@ -70,7 +76,7 @@ public class MainController implements Initializable{
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
 
-	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField1, searchField2;
+	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField1, searchField2, barChartInput;
 	@FXML public TableView<ExpenseEntry> expenseInputTable;
 	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
 	@FXML public TableColumn<ExpenseEntry, String> expenseTableDateCol;
@@ -175,6 +181,7 @@ public class MainController implements Initializable{
 		populateLogTable(expenseList, incomeList);
 		updateLineChart();
 		updatePieChart();
+		updateBarChart(1);
 	}
 	
 	
@@ -232,20 +239,37 @@ public class MainController implements Initializable{
 		double[] ctgValues = DataProcess.procesExpensePieChart(expenseList, 2018);
 		for (int i=0; i< ctgValues.length; i++)
 		{
-			list.add(new PieChart.Data(ExpenseEntry.EXPENSE_CATEGORY[i], ctgValues[i]));
+			list.add(new PieChart.Data(ExpenseEntry.EXPENSE_CATEGORY[i], (int)ctgValues[i]));
 		}
 		
 		piechart.setData(list);
+		piechart.setLegendSide(Side.LEFT);
+		
+//		status = new Label("");
+
+//		status.setTextFill(Color.BLACK);
+//		status.setStyle("-fx-font: 24 arial;");
+//		
+		
+		
 		
 		for (final PieChart.Data data : piechart.getData()) {
-			data.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
-
+			Node node = data.getNode();
+			node.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 				@Override
 				public void handle(MouseEvent event) {
-					status.setText(String.valueOf(data.getPieValue() / ((5 + 10 + 22 + 24 + 41) / 100)) + "%");
+//					status.setTranslateX(event.getSceneX());
+//					status.setTranslateY(event.getSceneY());
+					
+					status.setText(String.valueOf(data.getPieValue()) + "%"); 
+					status.setVisible(true);
+					node.setEffect(new Glow());
+					System.out.println(String.valueOf(data.getPieValue() ) + "%");
+					
+//					status.setText(String.valueOf(data.getPieValue() ) + "%");
 				}
-				
 			});
+			
 		}
 	}
 	
@@ -253,16 +277,6 @@ public class MainController implements Initializable{
 	public void updateLineChart()
 	{
 		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
-//		Iterator<IncomeEntry> inItr = incomeList.iterator();
-
-//		int count = 0;
-//		while(inItr.hasNext())
-//		{
-//			IncomeEntry income = inItr.next();
-//			String sCount = String.format("%d", count);
-//			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
-//			count++;
-//		}
 		double[] monthlyIncome = DataProcess.procesIncomeByMonth(incomeList, 2018);
 		for (int i=0; i< monthlyIncome.length; i++)
 		{
@@ -271,16 +285,6 @@ public class MainController implements Initializable{
 		series.setName("2018 Monthly Income"); // here is to set legend
 		
 		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
-//		Iterator<ExpenseEntry> expItr = expenseList.iterator();
-		
-//		count = 0;
-//		while(expItr.hasNext())
-//		{
-//			ExpenseEntry expense = expItr.next();
-//			String sCount = String.format("%d", count);
-//			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
-//			count++;
-//		}
 		double[] monthlyExpense = DataProcess.procesExpenseByMonth(expenseList, 2018);
 		for (int i=0; i< monthlyExpense.length; i++)
 		{
@@ -295,6 +299,27 @@ public class MainController implements Initializable{
 		}
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	public void updateBarChart(int inputMonth)
+	{
+		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
+
+		double[] ctg = DataProcess.procesExpenseBarChart(expenseList, 2018, inputMonth);
+		
+		for (int i=0; i< ctg.length; i++)
+		{
+			series.getData().add(new XYChart.Data<String, Number>( ExpenseEntry.EXPENSE_CATEGORY[i], ctg[i]) );
+		}
+		series.setName("2018 " + DataProcess.MONTHES[inputMonth - 1] + " Expense"); // here is to set legend
+		
+		barchart.getData().clear();
+		barchart.getData().addAll(series);
+//		for (final XYChart.Data<String, Number> data : series.getData()) {
+//			Tooltip.install(data.getNode(), new Tooltip("X: " + data.getXValue() + " Y: " + String.valueOf(data.getYValue())));
+//		}
+	}
+	
 	@FXML
 	public void searchBtnActionChart(ActionEvent event) throws Exception {
 		String startDate = searchField1.getText();
@@ -305,6 +330,14 @@ public class MainController implements Initializable{
 		searchField2.clear();
 	}
 	
+	@FXML
+	public void searchCategoryBtnActionChart(ActionEvent event) throws Exception {
+		String barMonth = barChartInput.getText();
+		int inputMonth = Integer.parseInt(barMonth);
+		if (inputMonth >= 1 && inputMonth <= 12)
+			updateBarChart(inputMonth);
+		barChartInput.clear();
+	}
 	
 	@FXML
 	public void searchBtnActionLog(ActionEvent event) throws Exception {
@@ -408,6 +441,7 @@ public class MainController implements Initializable{
 			scrpn_main.toFront();
 			updateLineChart();
 			updatePieChart();
+//			updateBarChart();
 		} else if (event.getSource() == btn_input) {
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
