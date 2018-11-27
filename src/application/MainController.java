@@ -1,43 +1,43 @@
 package application;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.opencsv.CSVReader;
+//import java.io.BufferedReader;
+//import java.io.DataInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileReader;
+//import java.io.FileWriter;
+//import java.io.IOException;
+//import java.io.InputStreamReader;
+import java.net.URL;
+//import java.time.format.DateTimeFormatter;
+//import java.util.ArrayList;
+//import java.util.Locale;
+
+import java.util.Iterator;
+
+import java.util.ResourceBundle;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.chart.PieChart;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Label;
+//import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -46,15 +46,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-
-
-import com.opencsv.CSVReader;
-import javafx.application.Application;
-import javafx.scene.chart.ScatterChart;
-
-
 
 public class MainController implements Initializable{
 
@@ -65,7 +58,8 @@ public class MainController implements Initializable{
 	//////////Main Page //////////
 
 	@FXML LineChart<String, Number> linechart;
-
+	@FXML PieChart piechart;
+	@FXML Label status;
 
 	//////////Main Page //////////
 
@@ -75,44 +69,40 @@ public class MainController implements Initializable{
 	@FXML public ComboBox<String> incopmeCombobox;
 //	@FXML public ListView<String> expenseListView;
 	@FXML public Button addExpenseList;
-	@FXML public TextField expenseAmount, incomeAmount, incomeSource;
-	@FXML public TableView<expenseInput> expenseInputTable;
-	@FXML public TableColumn<expenseInput, Integer> expenseTableAmountCol;
-	@FXML public TableColumn<expenseInput, String> expenseTableDateCol;
-	@FXML public TableColumn<expenseInput, String> expenseTableCategoriesCol;
-	@FXML public TableView<incomeInput> incomeInputTable;
-	@FXML public TableColumn<incomeInput, Integer> incomeTableAmountCol;
-	@FXML public TableColumn<incomeInput, String> incomeTableSourceCol;
-	@FXML public TableColumn<incomeInput, String> incomeTableFrequencyCol;
+
+	@FXML public TextField expenseAmount, expenseDate, incomeAmount, incomeSource, searchField1, searchField2;
+	@FXML public TableView<ExpenseEntry> expenseInputTable;
+	@FXML public TableColumn<ExpenseEntry, Double> expenseTableAmountCol;
+	@FXML public TableColumn<ExpenseEntry, String> expenseTableDateCol;
+	@FXML public TableColumn<ExpenseEntry, String> expenseTableCategoriesCol;
+	@FXML public TableView<IncomeEntry> incomeInputTable;
+	@FXML public TableColumn<IncomeEntry, Double> incomeTableAmountCol;
+	@FXML public TableColumn<IncomeEntry, String> incomeTableSourceCol;
+	@FXML public TableColumn<IncomeEntry, String> incomeTableFrequencyCol;
+	@FXML public TableColumn<IncomeEntry, String> incomeTableDateCol;
+
 	@FXML public ImageView inputIcon;
 	@FXML public ImageView logIcon;
 	@FXML public ImageView mainIcon;
 	@FXML public ImageView incomeAddIcon;
 	@FXML public ImageView expenseAddIcon;
-	@FXML public CategoryAxis linex;
-	@FXML public NumberAxis	liney;
-	@FXML public LineChart<?,?> lineChart;
-	@FXML public PieChart pieChart;
-	@FXML public BarChart<?,?> barChart;
-
+	@FXML public ImageView searchIcon;
 	//////////Input Page //////////
 
 	//////////Log Page //////////
 	// Tables in Log page
-	@FXML public TableView<expenseLog> expenseLogTable;
-	@FXML public TableColumn<expenseLog, Integer> expenseLogTableAmountCol;
-	@FXML public TableColumn<expenseLog, String> expenseLogTableDateCol;
-	@FXML public TableColumn<expenseLog, String> expenseLogTableCategoriesCol;
-	@FXML public TableView<incomeLog> incomeLogTable;
-	@FXML public TableColumn<incomeLog, Integer> incomeLogTableAmountCol;
-	@FXML public TableColumn<incomeLog, String> incomeLogTableSourceCol;
-	@FXML public TableColumn<incomeLog, String> incomeLogTableFrequencyCol;
+
+	@FXML public TableView<ExpenseEntry> expenseLogTable;
+	@FXML public TableView<IncomeEntry> incomeLogTable;
+	@FXML private TextField balanceField;
+
 	//////////Log Page //////////
 	// Image
 	Image inputImage = new Image("/img/input.png");
 	Image logImage = new Image("/img/log.png");
 	Image mainImage = new Image("/img/main.png");
 	Image addImage = new Image("/img/add.png");
+	Image searchImage = new Image("/img/search.png");
 
 
 
@@ -122,29 +112,37 @@ public class MainController implements Initializable{
 
 	// date picker
 	@FXML public DatePicker expenseDatePicker = new DatePicker();
+	@FXML public DatePicker incomeDatePicker = new DatePicker();
+	@FXML public DatePicker datePickLogStart = new DatePicker();
+	@FXML public DatePicker datePickLogEnd = new DatePicker();
 
 
 
-	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
-	ObservableList<String> expenseList = FXCollections.observableArrayList("Housing",
+//	private String initTitle = String.format("%-30s%-40s%s", "Amount", "Date", "Categories");
+	ObservableList<String> expenseCtg = FXCollections.observableArrayList("Housing",
 			"Transportation",
 			"Food",
 			"Utilities",
 			"Clothing",
 			"Medical",
 			"Insurance",
-			"Personal",
+			"Persional",
 			"Education",
 			"Entertainment");
-	ObservableList<String> incomeList = FXCollections.observableArrayList("Bi-week",
+	ObservableList<String> incomeFreq = FXCollections.observableArrayList("Bi-week",
 																			"Hourly",
 																			"Monthly");
 
-	ObservableList<expenseInput> expenseTableViewList = FXCollections.observableArrayList();
-	ObservableList<incomeInput> incomeTableViewList = FXCollections.observableArrayList();
+//	ObservableList<ExpenseEntry> expenseTableViewList = FXCollections.observableArrayList();
+//	ObservableList<IncomeEntry> incomeTableViewList = FXCollections.observableArrayList();
 
-	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
-	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
+	ObservableList<ExpenseEntry> expenseList = FXCollections.observableArrayList();
+	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
+	double balance;
+
+
+//	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
+//	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
 
 
 	@Override
@@ -154,117 +152,183 @@ public class MainController implements Initializable{
 		mainIcon.setImage(mainImage);
 		incomeAddIcon.setImage(addImage);
 		expenseAddIcon.setImage(addImage);
+		searchIcon.setImage(searchImage);
 
-		expenseCombobox.setItems(expenseList);
-		incopmeCombobox.setItems(incomeList);
+		expenseCombobox.setItems(expenseCtg);
+		incopmeCombobox.setItems(incomeFreq);
 //		expenseListView.setItems(initListViewTitle);
 
-		expenseTableAmountCol.setCellValueFactory(new PropertyValueFactory<expenseInput, Integer>("expenseTableAmountCol"));
-		expenseTableDateCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableDateCol"));
-		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<expenseInput, String>("expenseTableCategoriesCol"));
-		expenseInputTable.setItems(expenseTableViewList);
-
-		expenseLogTableAmountCol.setCellValueFactory(new PropertyValueFactory<expenseLog, Integer>("expenseLogTableAmountCol"));
-		expenseLogTableDateCol.setCellValueFactory(new PropertyValueFactory<expenseLog, String>("expenseLogTableDateCol"));
-		expenseLogTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<expenseLog, String>("expenseLogTableCategoriesCol"));
-		expenseLogTable.setItems(expenseLogTableViewList);
-
-		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<incomeInput, Integer>("incomeTableAmountCol"));
-		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableSourceCol"));
-		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeInput, String>("incomeTableFrequencyCol"));
-		incomeInputTable.setItems(incomeTableViewList);
-
-		// Pie Chart
-		ObservableList<PieChart.Data> pieChartData =
-	            FXCollections.observableArrayList(
-	            new PieChart.Data("Housing", 25),
-	            new PieChart.Data("Food", 20),
-	            new PieChart.Data("Personal", 15),
-	            new PieChart.Data("Utilities", 10),
-	            new PieChart.Data("Entertainment", 15),
-	            new PieChart.Data("Insurance", 10),
-	            new PieChart.Data("Transportation", 5));
-
-		pieChart.setData(pieChartData);
-
-		// Line Chart
-		XYChart.Series seriesB = new XYChart.Series();
-
-		seriesB.setName("Balance Total");
-
-		seriesB.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000-1000));
-		seriesB.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000-1000+2500-2500));
-		seriesB.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2000-1000+2500-2500+2000-700));
-		seriesB.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2000-1000+2500-2500+2000-700+3000-5050));
-		seriesB.getData().add(new XYChart.Data<String, Integer>("May 2018", 2000-1000+2500-2500+2000-700+3000-5050+2500-800));
-
-		lineChart.getData().addAll(seriesB);
-
-//		try {
-//			CSVReader dataReader = new CSVReader(new FileReader("C:/Users/casey/Documents/income.csv"));
-//			String[] nextLine;
-//			while ((nextLine = dataReader.readNext()) != null) {
-//				int amount = Integer.parseInt(nextLine[0]);
-//				String source = String.valueOf(nextLine[1]);
-//				String frequency = String.valueOf(nextLine[2]);
-//			}
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (NumberFormatException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-		// Bar Chart
-		XYChart.Series seriesE = new XYChart.Series();
-		XYChart.Series seriesI = new XYChart.Series();
-
-		seriesE.setName("Expense Total");
-		seriesI.setName("Income Total");
-
-		seriesE.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 1000));
-		seriesE.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2500));
-		seriesE.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 700));
-		seriesE.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 5050));
-		seriesE.getData().add(new XYChart.Data<String, Integer>("May 2018", 800));
-
-		incomeLogTableAmountCol.setCellValueFactory(new PropertyValueFactory<incomeLog, Integer>("incomeLogTableAmountCol"));
-		incomeLogTableSourceCol.setCellValueFactory(new PropertyValueFactory<incomeLog, String>("incomeLogTableSourceCol"));
-		incomeLogTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<incomeLog, String>("incomeLogTableFrequencyCol"));
-		incomeLogTable.setItems(incomeLogTableViewList);
+		expenseTableAmountCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, Double>("Amount"));
+		expenseTableDateCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, String>("Date"));
+		expenseTableCategoriesCol.setCellValueFactory(new PropertyValueFactory<ExpenseEntry, String>("Category"));
+//		expenseInputTable.setItems(expenseTableViewList);
 
 
-		writetoFile(inFile, "amount, source, frequency\n", false);
-		writetoFile(expFile, "amount, date, category\n", false);
+		incomeTableAmountCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, Double>("Amount"));
+		incomeTableSourceCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Source"));
+		incomeTableFrequencyCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Frequency"));
+		incomeTableDateCol.setCellValueFactory(new PropertyValueFactory<IncomeEntry, String>("Date"));
+//		incomeInputTable.setItems(incomeTableViewList);
 
+		//update log page
+		incomeList = FileProcess.readIncomeFromFile(inFile);
+		expenseList = FileProcess.readExpenseFromFile(expFile);
 
-		seriesI.getData().add(new XYChart.Data<String, Integer>("Jan 2018", 2000));
-		seriesI.getData().add(new XYChart.Data<String, Integer>("Feb 2018", 2000));
-		seriesI.getData().add(new XYChart.Data<String, Integer>("Mar 2018", 2500));
-		seriesI.getData().add(new XYChart.Data<String, Integer>("Apr 2018", 2500));
-		seriesI.getData().add(new XYChart.Data<String, Integer>("May 2018", 2500));
-
-		barChart.getData().addAll(seriesE,seriesI);
+		populateLogTable(expenseList, incomeList);
+		updateLineChart();
+		updatePieChart();
 	}
 
-	public void writetoFile(String fname, String s, boolean append)
+
+	public void populateLogTable(ObservableList<ExpenseEntry> expList, ObservableList<IncomeEntry> incList)
 	{
-	  try
-	  {
-	   FileWriter fw = new FileWriter(fname, append);
-	   fw.append(s);
-	   fw.close();
-	  }
-	  catch (IOException ioe)
-	  {
+		expenseLogTable.getColumns().clear();
+		TableColumn<ExpenseEntry, Double> expAmountColumn = new TableColumn<>("Amount");
+		expAmountColumn.setMinWidth(100);
+		expAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
 
-	  }
-	 }
+		TableColumn<ExpenseEntry, Double> expDateColumn = new TableColumn<>("Date");
+		expDateColumn.setMinWidth(100);
+		expDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 
+		TableColumn<ExpenseEntry, Double> expCatColumn = new TableColumn<>("Category");
+		expCatColumn.setMinWidth(100);
+		expCatColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+
+
+		expenseLogTable.setItems(expList);
+		expenseLogTable.getColumns().add(expAmountColumn);
+		expenseLogTable.getColumns().add(expDateColumn);
+		expenseLogTable.getColumns().add(expCatColumn);
+
+
+		//populate income table
+		incomeLogTable.getColumns().clear();
+		TableColumn<IncomeEntry, Double> incomeAmountColumn = new TableColumn<>("Amount");
+		incomeAmountColumn.setMinWidth(40);
+		incomeAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+
+		TableColumn<IncomeEntry, String> incomeSourceColumn = new TableColumn<>("Source");
+		incomeSourceColumn.setMinWidth(40);
+		incomeSourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
+
+		TableColumn<IncomeEntry, String> incomeFreqColumn = new TableColumn<>("Frequency");
+		incomeFreqColumn.setMinWidth(40);
+		incomeFreqColumn.setCellValueFactory(new PropertyValueFactory<>("frequency"));
+
+		TableColumn<IncomeEntry, String> incomeDateColumn = new TableColumn<>("Date");
+		incomeDateColumn.setMinWidth(40);
+		incomeDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+		incomeLogTable.setItems(incList);
+		incomeLogTable.getColumns().add(incomeAmountColumn);
+		incomeLogTable.getColumns().add(incomeSourceColumn);
+		incomeLogTable.getColumns().add(incomeFreqColumn);
+		incomeLogTable.getColumns().add(incomeDateColumn);
+
+		//display the balanceTextField
+		balance = DataProcess.balance(expList, incList);
+		balanceField.setText(Double.toString(balance));
+
+	}
+
+	public void updatePieChart()
+	{
+		ObservableList<Data> list = FXCollections.observableArrayList();
+
+		double[] ctgValues = DataProcess.procesExpensePieChart(expenseList, 2018);
+		for (int i=0; i< ctgValues.length; i++)
+		{
+			list.add(new PieChart.Data(ExpenseEntry.EXPENSE_CATEGORY[i], ctgValues[i]));
+		}
+
+		piechart.setData(list);
+
+		for (final PieChart.Data data : piechart.getData()) {
+			data.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+
+				@Override
+				public void handle(MouseEvent event) {
+					status.setText(String.valueOf(data.getPieValue() / ((5 + 10 + 22 + 24 + 41) / 100)) + "%");
+				}
+
+			});
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void updateLineChart()
+	{
+		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
+//		Iterator<IncomeEntry> inItr = incomeList.iterator();
+
+//		int count = 0;
+//		while(inItr.hasNext())
+//		{
+//			IncomeEntry income = inItr.next();
+//			String sCount = String.format("%d", count);
+//			series.getData().add(new XYChart.Data<String, Number>(sCount, income.getAmount()));
+//			count++;
+//		}
+		double[] monthlyIncome = DataProcess.procesIncomeByMonth(incomeList, 2018);
+		for (int i=0; i< monthlyIncome.length; i++)
+		{
+			series.getData().add(new XYChart.Data<String, Number>( DataProcess.MONTHES[i], monthlyIncome[i]) );
+		}
+		series.setName("2018 Monthly Income"); // here is to set legend
+
+		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
+//		Iterator<ExpenseEntry> expItr = expenseList.iterator();
+
+//		count = 0;
+//		while(expItr.hasNext())
+//		{
+//			ExpenseEntry expense = expItr.next();
+//			String sCount = String.format("%d", count);
+//			series1.getData().add(new XYChart.Data<String, Number>(sCount, expense.getAmount()));
+//			count++;
+//		}
+		double[] monthlyExpense = DataProcess.procesExpenseByMonth(expenseList, 2018);
+		for (int i=0; i< monthlyExpense.length; i++)
+		{
+			series1.getData().add(new XYChart.Data<String, Number>( DataProcess.MONTHES[i], monthlyExpense[i]) );
+		}
+		series1.setName("2018 Monthly Expense"); // here is to set legend
+
+		linechart.getData().clear();
+		linechart.getData().addAll(series, series1);
+		for (final XYChart.Data<String, Number> data : series.getData()) {
+			Tooltip.install(data.getNode(), new Tooltip("X: " + data.getXValue() + " Y: " + String.valueOf(data.getYValue())));
+		}
+	}
+
+	@FXML
+	public void searchBtnActionChart(ActionEvent event) throws Exception {
+		String startDate = searchField1.getText();
+		String endDate = searchField2.getText();
+
+
+		searchField1.clear();
+		searchField2.clear();
+	}
+
+
+	@FXML
+	public void searchBtnActionLog(ActionEvent event) throws Exception {
+		if (datePickLogStart.getValue() != null && datePickLogEnd.getValue() != null) {
+			String startDate = datePickLogStart.getValue().toString();
+			String endDate = datePickLogEnd.getValue().toString();
+
+			ObservableList<ExpenseEntry> filteredExpList = DataProcess.filterExpenseByDateRange(expenseList, startDate, endDate);
+			ObservableList<IncomeEntry> filteredIncList = DataProcess.filterIncomeByDateRange(incomeList, startDate, endDate);
+			
+			populateLogTable(filteredExpList, filteredIncList);
+
+			System.out.println(startDate);
+			System.out.println(endDate);
+		}
+
+	}
 
 	@FXML
 	public void expenseAddBtn(ActionEvent event) throws Exception {
@@ -281,33 +345,38 @@ public class MainController implements Initializable{
 		incomeAmount.setText("");
 		incomeSource.setText("");
 		incopmeCombobox.setValue("Select Frequency");
-
 	}
-
-
-
 
 	public void addToList(String addCommand) throws Exception {
 		if (addCommand.equals("addIncome")) {
 			String incomeAmountInput = incomeAmount.getText();
 			String incomeSourceInput = incomeSource.getText();
 			String incomeFrequencyInput = incopmeCombobox.getValue();
+			String incomeDateInput = "";
+
 
 			if (incomeAmountInput == null || incomeAmountInput == ""
+					|| incomeDatePicker.getValue() == null
 					|| incomeSourceInput == null || incomeSourceInput == ""
 					|| incomeFrequencyInput == null || incomeFrequencyInput == "") {
 				alertHelper();
 				return;
 			} else {
-				incomeTableViewList.add(new incomeInput(Integer.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput));
+			incomeDateInput = incomeDatePicker.getValue().toString();
+			IncomeEntry newIncome = new IncomeEntry( Double.valueOf(incomeAmountInput), incomeSourceInput, incomeFrequencyInput, incomeDateInput);
+			incomeList.add(newIncome);
+			incomeInputTable.getItems().add(newIncome);
 
-				String s= String.format("%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput);
-				writetoFile(inFile, s, true);
+			String s= String.format("%s,%s,%s,%s\n", incomeAmountInput, incomeSourceInput, incomeFrequencyInput, incomeDateInput);
+//System.out.println(s);
+		    FileProcess.writetoFile(inFile, s, true);
 			}
+
 		} else if (addCommand.equals("addExpense")) {
 			String expenseAmountInput = expenseAmount.getText();
 			String expenseDateInput = "";
 			String expenseCategoryInput = expenseCombobox.getValue();
+
 
 			if (expenseAmount.getText() == null || expenseAmount.getText().equals("")
 					|| expenseDatePicker.getValue() == null
@@ -316,14 +385,19 @@ public class MainController implements Initializable{
 				return;
 			} else {
 				expenseDateInput = expenseDatePicker.getValue().toString();
-				expenseTableViewList.add(new expenseInput(Integer.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput));
 
-				String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
-				writetoFile(expFile, s, true);
+			ExpenseEntry newExpense = new ExpenseEntry( Double.valueOf(expenseAmountInput), expenseDateInput, expenseCategoryInput );
+			expenseList.add(newExpense);
+			expenseInputTable.getItems().add(newExpense);
+
+			String s= String.format("%s,%s,%s\n", expenseAmountInput, expenseDateInput, expenseCategoryInput);
+		    FileProcess.writetoFile(expFile, s, true);
 			}
+
 		}
 
 	}
+
 
 	private void alertHelper() {
 		Alert alert = new Alert(AlertType.INFORMATION);
@@ -334,96 +408,104 @@ public class MainController implements Initializable{
 		alert.showAndWait();
 	}
 
+
 	@FXML
 	private void handleButtonAction(ActionEvent event) {
 		if (event.getSource() == btn_main) {
 			scrpn_main.toFront();
+			updateLineChart();
+			updatePieChart();
 		} else if (event.getSource() == btn_input) {
 			pn_input.toFront();
 		} else if (event.getSource() == btn_log) {
 			// read and display the file here
-			try {
-				incomeLogTableViewList.clear();
-				expenseLogTableViewList.clear();
-				addToLogInList(readFile(inFile));
-				addToLogExpList(readFile(expFile));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+////				incomeLogTableViewList.clear();
+//				expenseLogTableViewList.clear();
+//				addToLogInList(readFile(inFile));
+//				addToLogExpList(readFile(expFile));
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 //			readFile(expFile);
 			pn_log.toFront();
 		}
 	}
 
-	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
-		for (int i = 1; i < dataInput.size(); i++) {
-			String[] eachLine = dataInput.get(i).split(",");
-			int incomeAmountLog = 0;
-			String incomeSourceLog = "";
-			String incomeFrequencyLog = "";
+//	public void addToLogInList(ArrayList<String> dataInput) throws Exception {
+//		for (int i = 1; i < dataInput.size(); i++) {
+//			String[] eachLine = dataInput.get(i).split(",");
+//			int incomeAmountLog = 0;
+//			String incomeSourceLog = "";
+//			String incomeFrequencyLog = "";
+//
+//			incomeAmountLog = Integer.parseInt(eachLine[0]);
+//			incomeSourceLog = eachLine[1];
+//			incomeFrequencyLog= eachLine[2];
+//
+//
+//			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
+//		}
+//	}
+//
+//	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
+//		for (int i = 1; i < dataInput.size(); i++) {
+//			String[] eachLine = dataInput.get(i).split(",");
+//			int expenseAmountLog = 0;
+//			String expenseDateLog = "";
+//			String expenseCategoriesLog = "";
+//
+//			expenseAmountLog = Integer.parseInt(eachLine[0]);
+//			expenseDateLog = eachLine[1];
+//			expenseCategoriesLog= eachLine[2];
+//
+//
+//			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
+//		}
+//	}
 
-			incomeAmountLog = Integer.parseInt(eachLine[0]);
-			incomeSourceLog = eachLine[1];
-			incomeFrequencyLog= eachLine[2];
-
-
-			incomeLogTableViewList.add(new incomeLog(incomeAmountLog, incomeSourceLog, incomeFrequencyLog));
-		}
-	}
-
-	public void addToLogExpList(ArrayList<String> dataInput) throws Exception {
-		for (int i = 1; i < dataInput.size(); i++) {
-			String[] eachLine = dataInput.get(i).split(",");
-			int expenseAmountLog = 0;
-			String expenseDateLog = "";
-			String expenseCategoriesLog = "";
-
-			expenseAmountLog = Integer.parseInt(eachLine[0]);
-			expenseDateLog = eachLine[1];
-			expenseCategoriesLog= eachLine[2];
-
-
-			expenseLogTableViewList.add(new expenseLog(expenseAmountLog, expenseDateLog, expenseCategoriesLog));
-		}
-	}
-
-	public ArrayList<String> readFile(String fileStrInput)  {
-		ArrayList<String> res = new ArrayList<>();
-
-	    FileInputStream fstream = null;
-	    try {
-	        File inFile = new File(fileStrInput);
-	        fstream = new FileInputStream(inFile);
-	        // Get the object of DataInputStream
-	        DataInputStream in = new DataInputStream(fstream);
-	        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-	        // Do something with the stream
-	        String curLine = br.readLine();
-	        while (curLine != null && curLine != "") {
-//		        System.out.println(curLine);
-	        	res.add(curLine);
-		        curLine = br.readLine();
-	        }
-
-	    } catch (FileNotFoundException ex) {
-	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-	    } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-	        try {
-	            // If you don't need the stream open after the constructor
-	            // else, remove that block but don't forget to close the
-	            // stream after you are done with it
-	            fstream.close();
-	        } catch (IOException ex) {
-	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-	        }
-	    }
-
-	    return res;
-	}
+//	public ArrayList<String> readFile(String fileStrInput)  {
+//		ArrayList<String> res = new ArrayList<>();
+//
+//	    FileInputStream fstream = null;
+//	    try {
+//	        File inFile = new File(fileStrInput);
+//	        fstream = new FileInputStream(inFile);
+//	        // Get the object of DataInputStream
+//	        DataInputStream in = new DataInputStream(fstream);
+//	        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//	        // Do something with the stream
+//	        String curLine = br.readLine();
+//	        while (curLine != null && curLine != "") {
+////		        System.out.println(curLine);
+//	        	res.add(curLine);
+//		        curLine = br.readLine();
+//	        }
+//
+//	    } catch (FileNotFoundException ex) {
+//	        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+//	    } catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} finally {
+//	        try {
+//	            // If you don't need the stream open after the constructor
+//	            // else, remove that block but don't forget to close the
+//	            // stream after you are done with it
+//	            fstream.close();
+//	        } catch (IOException ex) {
+//	            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+//	        }
+//	    }
+//
+//	    return res;
+//	}
+	/**
+	 * -fx-background-color  transparent
+	 *
+	 *
+	 */
 
 
 }
