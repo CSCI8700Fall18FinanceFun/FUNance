@@ -38,7 +38,7 @@ public class FileProcess {
 				}
 				catch (NumberFormatException nfe)
 				{
-					
+
 				}
 			}
 			in.close();
@@ -47,11 +47,11 @@ public class FileProcess {
 		{
 //			System.out.println(fname + "open expection: " + fnfe);
 		}
-		
-		
+
+
 		return incomes;
 	}
-	
+
 	public static ObservableList<ExpenseEntry> readExpenseFromFile(String fname)
 	{
 		ObservableList<ExpenseEntry> expenses = FXCollections.observableArrayList();
@@ -78,7 +78,7 @@ public class FileProcess {
 				}
 				catch (NumberFormatException nfe)
 				{
-					
+
 				}
 			}
 			in.close();
@@ -87,11 +87,33 @@ public class FileProcess {
 		{
 //			System.out.println(fname + "open expection: " + fnfe);
 		}
-		
-		
+
+
 		return expenses;
 	}
-	
+
+	public static double balanceFromFile(String inFname, String exFname)
+	{
+		ObservableList<ExpenseEntry> exList = readExpenseFromFile(exFname);
+		ObservableList<IncomeEntry> inList = readIncomeFromFile(inFname);
+		Iterator<ExpenseEntry> itrE = exList.iterator();
+		Iterator<IncomeEntry> itrI = inList.iterator();
+		double balance = 0;
+		while(itrI.hasNext())
+		{
+			IncomeEntry income = itrI.next();
+			Double i = income.getAmount();
+			balance += i;
+		}
+		while(itrE.hasNext())
+		{
+			ExpenseEntry expense = itrE.next();
+			Double e = expense.getAmount();
+			balance -= e;
+		}
+		return balance;
+	}
+
 	public static void writetoFile(String fname, String s, boolean append)
 	{
 	  try
@@ -102,7 +124,7 @@ public class FileProcess {
 	  }
 	  catch (IOException ioe)
 	  {
-	   
+
 	  }
 	 }
 }
