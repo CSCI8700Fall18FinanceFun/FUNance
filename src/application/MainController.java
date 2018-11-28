@@ -100,6 +100,8 @@ public class MainController implements Initializable{
 
 	@FXML public TableView<ExpenseEntry> expenseLogTable;
 	@FXML public TableView<IncomeEntry> incomeLogTable;
+	@FXML private TextField balanceField;
+
 
 	//////////Log Page //////////
 	// Image
@@ -143,7 +145,8 @@ public class MainController implements Initializable{
 	
 	ObservableList<ExpenseEntry> expenseList = FXCollections.observableArrayList();
 	ObservableList<IncomeEntry> incomeList = FXCollections.observableArrayList();
-	
+	double balance;
+
 
 //	ObservableList<expenseLog> expenseLogTableViewList = FXCollections.observableArrayList();
 //	ObservableList<incomeLog> incomeLogTableViewList = FXCollections.observableArrayList();
@@ -230,6 +233,10 @@ public class MainController implements Initializable{
 		incomeLogTable.getColumns().add(incomeSourceColumn);
 		incomeLogTable.getColumns().add(incomeFreqColumn);
 		incomeLogTable.getColumns().add(incomeDateColumn);
+		
+		//display the balanceTextField
+		balance = DataProcess.balance(expList, incList);
+		balanceField.setText(Double.toString(balance));
 	}
 	
 	public void updatePieChart()
