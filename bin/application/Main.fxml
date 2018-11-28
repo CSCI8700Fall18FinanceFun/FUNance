@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -18,6 +9,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -32,7 +24,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane minHeight="500.0" minWidth="800.0" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<AnchorPane minHeight="500.0" minWidth="800.0" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <children>
       <AnchorPane layoutX="130.0" layoutY="-1.0" prefHeight="500.0" prefWidth="666.0" style="-fx-background-radius: 0.5em;" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="130.0" AnchorPane.rightAnchor="4.0" AnchorPane.topAnchor="-1.0">
          <effect>
@@ -180,8 +172,6 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TableView>
-                  <TextField fx:id="balanceField" layoutX="105.0" layoutY="48.0" prefHeight="25.0" prefWidth="100.0">
-                  </TextField>
                   <Text fill="WHITE" layoutX="21.0" layoutY="99.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Expense: " wrappingWidth="139.00001204013824">
                      <font>
                         <Font name="System Bold Italic" size="18.0" />
@@ -191,14 +181,6 @@
                      </effect>
                   </Text>
                   <Text fill="WHITE" layoutX="21.0" layoutY="292.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Income: " wrappingWidth="139.00001204013824">
-                     <font>
-                        <Font name="System Bold Italic" size="18.0" />
-                     </font>
-                     <effect>
-                        <DropShadow color="#00000049" />
-                     </effect>
-                  </Text>
-                  <Text fill="WHITE" layoutX="21.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Balance: " wrappingWidth="139.00001204013824">
                      <font>
                         <Font name="System Bold Italic" size="18.0" />
                      </font>
@@ -227,7 +209,8 @@
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <PieChart fx:id="piechart" layoutX="40.0" layoutY="4.0" prefHeight="269.0" prefWidth="525.0" />
+                                          <PieChart fx:id="piechart" layoutX="39.0" layoutY="4.0" prefHeight="269.0" prefWidth="525.0" />
+                                          <Label fx:id="status" layoutX="520.0" layoutY="233.0" />
                                        </children>
                                     </AnchorPane>
                               </content>
@@ -252,7 +235,7 @@
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <BarChart layoutX="84.0" prefHeight="290.0" prefWidth="442.0">
+                                          <BarChart fx:id="barchart" layoutX="13.0" prefHeight="290.0" prefWidth="442.0">
                                             <xAxis>
                                               <CategoryAxis side="BOTTOM" />
                                             </xAxis>
@@ -260,6 +243,17 @@
                                               <NumberAxis side="LEFT" />
                                             </yAxis>
                                           </BarChart>
+                                          <Button layoutX="556.0" layoutY="234.0" mnemonicParsing="false" onAction="#searchCategoryBtnActionChart" prefHeight="38.0" prefWidth="27.0" style="-fx-background-color: white;">
+                                             <graphic>
+                                                <ImageView fx:id="searchIcon" fitHeight="29.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" />
+                                             </graphic>
+                                          </Button>
+                                          <TextField fx:id="barChartInput" layoutX="497.0" layoutY="239.0" prefHeight="27.0" prefWidth="58.0" />
+                                          <Text layoutX="439.0" layoutY="263.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Month:" textAlignment="CENTER" wrappingWidth="68.8574215982369">
+                                             <font>
+                                                <Font name="System Bold Italic" size="12.0" />
+                                             </font>
+                                          </Text>
                                        </children>
                                     </AnchorPane>
                                  </content>
@@ -271,15 +265,8 @@
                               <Font name="System Bold Italic" size="21.0" />
                            </font>
                         </Text>
-                        <TextField fx:id="searchField2" layoutX="473.0" layoutY="390.0" prefHeight="30.0" prefWidth="90.0" />
-                        <Button layoutX="571.0" layoutY="389.0" mnemonicParsing="false" onAction="#searchBtnActionChart" prefHeight="30.0" prefWidth="51.0" style="-fx-background-color: white;">
-                           <graphic>
-                              <ImageView fx:id="searchIcon" fitHeight="21.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true" />
-                           </graphic>
-                        </Button>
-                        <TextField fx:id="searchField1" layoutX="309.0" layoutY="391.0" prefHeight="30.0" prefWidth="90.0" />
-                        <Text fill="WHITE" layoutX="408.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="End Date:" />
-                        <Text fill="WHITE" layoutX="237.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Start Date:" />
+                        <TextField fx:id="searchField2" layoutX="473.0" layoutY="390.0" prefHeight="30.0" prefWidth="90.0" style="-fx-background-color: transparent;" />
+                        <TextField fx:id="searchField1" layoutX="309.0" layoutY="391.0" prefHeight="30.0" prefWidth="90.0" style="-fx-background-color: transparent;" />
                      </children>
                      <padding>
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
