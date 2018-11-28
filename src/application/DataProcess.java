@@ -103,6 +103,25 @@ public class DataProcess {
 		
 		return outList;
 	}
+	public static double balance(ObservableList<ExpenseEntry> expenseList, ObservableList<IncomeEntry> incomeList)
+	{
+ 		Iterator<ExpenseEntry> itrE = expenseList.iterator();
+		Iterator<IncomeEntry> itrI = incomeList.iterator();
+		double balance = 0;
+		while(itrI.hasNext())
+		{
+			IncomeEntry income = itrI.next();
+			Double i = income.getAmount();
+			balance += i;
+		}
+		while(itrE.hasNext())
+		{
+			ExpenseEntry expense = itrE.next();
+			Double e = expense.getAmount();
+			balance -= e;
+		}
+		return balance;
+	}
 	public static double[] procesExpenseBarChart(ObservableList<ExpenseEntry> expenseList, int year, int month)
 	 {
 	  Iterator<ExpenseEntry> itr = expenseList.iterator();
