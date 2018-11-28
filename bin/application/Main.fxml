@@ -209,7 +209,7 @@
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <PieChart fx:id="piechart" layoutX="39.0" layoutY="4.0" prefHeight="269.0" prefWidth="525.0" />
+                                          <PieChart fx:id="piechart" layoutX="39.0" layoutY="4.0" prefHeight="269.0" prefWidth="525.0" title="Yearly Expenses" />
                                           <Label fx:id="status" layoutX="520.0" layoutY="233.0" />
                                        </children>
                                     </AnchorPane>
@@ -219,12 +219,12 @@
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <LineChart fx:id="linechart" layoutX="74.0" prefHeight="291.0" prefWidth="442.0">
+                                          <LineChart fx:id="linechart" layoutX="74.0" prefHeight="291.0" prefWidth="442.0" title="Expenses and Income">
                                             <xAxis>
-                                              <CategoryAxis side="BOTTOM" />
+                                              <CategoryAxis label="Date" side="BOTTOM" />
                                             </xAxis>
                                             <yAxis>
-                                              <NumberAxis side="LEFT" />
+                                              <NumberAxis label="Amount" side="LEFT" />
                                             </yAxis>
                                           </LineChart>
                                        </children>
@@ -235,12 +235,12 @@
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <BarChart fx:id="barchart" layoutX="13.0" prefHeight="290.0" prefWidth="442.0">
+                                          <BarChart fx:id="barchart" layoutX="13.0" prefHeight="290.0" prefWidth="442.0" title="Monthly Expenses">
                                             <xAxis>
-                                              <CategoryAxis side="BOTTOM" />
+                                              <CategoryAxis label="Category" side="BOTTOM" />
                                             </xAxis>
                                             <yAxis>
-                                              <NumberAxis side="LEFT" />
+                                              <NumberAxis label="Amount" side="LEFT" />
                                             </yAxis>
                                           </BarChart>
                                           <Button layoutX="556.0" layoutY="234.0" mnemonicParsing="false" onAction="#searchCategoryBtnActionChart" prefHeight="38.0" prefWidth="27.0" style="-fx-background-color: white;">

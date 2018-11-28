@@ -1,0 +1,20 @@
+amount, source, frequency, date
+1,a,Monthly,2018-11-20
+1,ab,Monthly,2018-11-14
+234,a,Monthly,2018-11-06
+232,d,Monthly,2018-11-07
+321,s,Hourly,2018-11-08
+2119,m,Monthly,2018-10-25
+1811,j,Monthly,2018-09-04
+1011,k,Hourly,2018-07-30
+1221,m,Hourly,2018-08-07
+12,kk,Bi-week,2018-06-20
+923,w,Hourly,2018-06-20
+2100,j,Monthly,2018-05-15
+1431,p,Hourly,2018-04-30
+1100,j,Hourly,2018-03-05
+1321,s,Hourly,2018-02-25
+122,pp,Hourly,2018-01-28
+1921,j,Hourly,2018-12-10
+989,d,Hourly,2018-01-09
+696,hh,Hourly,2018-11-06
